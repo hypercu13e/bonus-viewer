@@ -1,0 +1,22 @@
+{
+	"name": "@hypercu13e/bonus-viewer",
+	"version": "1.0.0",
+	"description": "An add-on to Margonem MMORPG that counts and displays item bonuses",
+	"author": "hypercu13e",
+	"license": "ISC",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
+		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
+		"test": "node --import ./hooks.mjs --test ./src/"
+	},
+	"devDependencies": {
+		"@types/node": "^20.8.2",
+		"dedent": "^1.5.1",
+		"esbuild": "~0.19.4",
+		"prettier": "^3.0.3",
+		"tsx": "^3.13.0",
+		"typescript": "~5.2.2"
+	}
+}
