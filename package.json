@@ -9,14 +9,13 @@
 	"scripts": {
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
-		"test": "node --import ./hooks.mjs --test ./src/"
+		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test ./build/"
 	},
 	"devDependencies": {
 		"@types/node": "^20.8.2",
 		"dedent": "^1.5.1",
 		"esbuild": "~0.19.4",
 		"prettier": "^3.0.3",
-		"tsx": "^3.13.0",
 		"typescript": "~5.2.2"
 	}
 }
