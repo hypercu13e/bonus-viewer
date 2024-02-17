@@ -63,7 +63,7 @@ describe('flatMap()', () => {
 
 	test('returns the original Err value', () => {
 		const err = result.err();
-		const mapped = result.map(err, (x) => String(x));
+		const mapped = result.flatMap(err, (x) => result.ok(String(x)));
 
 		assert.equal(mapped, err);
 	});

@@ -9,7 +9,7 @@
 	"scripts": {
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
-		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test ./build/**/*.test.mjs"
+		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test --experimental-test-coverage ./build/**/*.test.mjs"
 	},
 	"devDependencies": {
 		"@types/node": "^20.8.2",
