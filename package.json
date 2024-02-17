@@ -7,15 +7,16 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"format": "prettier --write ./",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
 		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test --experimental-test-coverage ./build/**/*.test.mjs"
 	},
 	"devDependencies": {
-		"@types/node": "^20.8.2",
+		"@types/node": "^20.11.19",
 		"dedent": "^1.5.1",
-		"esbuild": "~0.19.4",
-		"prettier": "^3.0.3",
+		"esbuild": "~0.20.0",
+		"prettier": "^3.2.5",
 		"typescript": "~5.2.2"
 	}
 }
