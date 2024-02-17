@@ -7,6 +7,12 @@ export enum EvalVariable {
 	Rarity,
 }
 
+export function constant(x: number): Evaluator {
+	return function evalConstant(): number {
+		return x;
+	};
+}
+
 export function polynomial(
 	coeffs: readonly number[],
 	variable: EvalVariable = EvalVariable.Lvl,
