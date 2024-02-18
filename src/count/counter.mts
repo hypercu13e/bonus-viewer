@@ -1,3 +1,4 @@
+import type { ItemType } from '../item.mjs';
 import type { BonusCount } from './count.mjs';
 import * as count from './count.mjs';
 import type { StatContext } from './ctx.mjs';
@@ -7,6 +8,31 @@ import type { Result } from './result.mjs';
 import * as result from './result.mjs';
 
 export type BonusCounter<T> = (ctx: StatContext) => Result<T>;
+
+export type NativeOptions = {
+	items: Iterable<ItemType>;
+	evaluator: Evaluator;
+};
+
+export function native(options: NativeOptions): BonusCounter<number> {
+	const { items, evaluator: evaluate } = options;
+	const itemKinds: ReadonlySet<ItemType> = new Set(items);
+
+	return function countNative(ctx): Result<number> {
+		if (!itemKinds.has(ctx.kind)) {
+			return result.ok(0);
+		}
+
+		const value = evaluate({
+			// Native bonuses can be treated as regular bonuses with `n` equal to 1, so `x` can be
+			// calculated rather simply in comparison to the `linear()` counter.
+			x: ctx.lvl + ctx.upgrade,
+			r: ctx.rarity,
+		});
+
+		return result.ok(value);
+	};
+}
 
 export type LinearOptions = {
 	a1?: Evaluator;

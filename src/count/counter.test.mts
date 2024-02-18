@@ -7,13 +7,35 @@ import type { StatContext } from './ctx.mjs';
 import * as evaluate from './evaluate.mjs';
 import * as result from './result.mjs';
 
+describe('native()', () => {
+	test('returns 0 when the given item has no native bonus', () => {
+		const countBonus = counter.native({
+			items: [ItemType.Armor, ItemType.Shield],
+			evaluator: evaluate.polynomial([6, 3]),
+		});
+		const countResult = countBonus(createStatCtx({ lvl: 10, kind: ItemType.Helmet }));
+
+		assert.deepEqual(countResult, result.ok(0));
+	});
+
+	test('evaluates the native bonus value when the given item has native bonus', () => {
+		const countBonus = counter.native({
+			items: [ItemType.Armor, ItemType.Shield],
+			evaluator: evaluate.polynomial([6, 3]),
+		});
+		const countResult = countBonus(createStatCtx({ lvl: 10, kind: ItemType.Armor }));
+
+		assert.deepEqual(countResult, result.ok(63));
+	});
+});
+
 describe('linear()', () => {
 	test('counts a bonus with a positive value and positive `n`', () => {
 		const countBonus = counter.linear({
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: 5,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 8 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 8 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -23,7 +45,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: -1,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 4, value: 0 }));
+		const countResult = countBonus(createStatCtx({ lvl: 4, originalValue: 0 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -33,7 +55,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: -18,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: -16 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: -16 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -43,7 +65,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: 5,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 3 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 3 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -53,7 +75,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: 1,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 4, value: 0 }));
+		const countResult = countBonus(createStatCtx({ lvl: 4, originalValue: 0 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -63,7 +85,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: 1,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: -2 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: -2 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -74,7 +96,7 @@ describe('linear()', () => {
 			a0: 5,
 			negativeEffect: true,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 8 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 8 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -85,7 +107,7 @@ describe('linear()', () => {
 			a0: 5,
 			negativeEffect: true,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 3 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 3 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -94,7 +116,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: evaluate.constant(0.1),
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 1, value: 1 }));
+		const countResult = countBonus(createStatCtx({ lvl: 1, originalValue: 1 }));
 
 		assert.deepEqual(countResult, result.ok(count.range(5, 14)));
 	});
@@ -103,7 +125,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: evaluate.constant(0.1),
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 1, value: 0 }));
+		const countResult = countBonus(createStatCtx({ lvl: 1, originalValue: 0 }));
 
 		assert.deepEqual(countResult, result.ok(count.range(-4, 4)));
 	});
@@ -112,7 +134,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: evaluate.constant(0.1),
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 1, value: -1 }));
+		const countResult = countBonus(createStatCtx({ lvl: 1, originalValue: -1 }));
 
 		assert.deepEqual(countResult, result.ok(count.range(-14, -5)));
 	});
@@ -122,7 +144,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([2, 0]),
 			a0: 4,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, value: 50 }));
+		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, originalValue: 50 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -133,7 +155,7 @@ describe('linear()', () => {
 			a0: 4,
 			negativeEffect: true,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, value: 38 }));
+		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, originalValue: 38 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -143,7 +165,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([2, 0]),
 			a0: 4,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, value: -30 }));
+		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, originalValue: -30 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(-1)));
 	});
@@ -154,7 +176,7 @@ describe('linear()', () => {
 			a0: 4,
 			negativeEffect: true,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, value: -42 }));
+		const countResult = countBonus(createStatCtx({ lvl: 20, upgrade: 3, originalValue: -42 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(1)));
 	});
@@ -164,7 +186,7 @@ describe('linear()', () => {
 			a1: evaluate.polynomial([0.25, 0]),
 			a0: 1,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 0 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 0 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(0)));
 	});
@@ -175,7 +197,7 @@ describe('linear()', () => {
 			a0: 1,
 			negativeEffect: true,
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 10, value: 0 }));
+		const countResult = countBonus(createStatCtx({ lvl: 10, originalValue: 0 }));
 
 		assert.deepEqual(countResult, result.ok(count.int(0)));
 	});
@@ -184,7 +206,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: evaluate.polynomial([1, 0]),
 		});
-		const countResult = countBonus(createStatCtx({ lvl: 100, value: 50 }));
+		const countResult = countBonus(createStatCtx({ lvl: 100, originalValue: 50 }));
 
 		assert.deepEqual(countResult, result.err());
 	});
@@ -193,7 +215,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: ({ x }) => x,
 		});
-		const ctx = createStatCtx({ lvl: 3, value: -0.5, upgrade: 3 });
+		const ctx = createStatCtx({ lvl: 3, originalValue: -0.5, upgrade: 3 });
 
 		assert.throws(
 			() => countBonus(ctx),
@@ -207,7 +229,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: ({ x }) => 3 - x,
 		});
-		const ctx = createStatCtx({ lvl: 3, value: -0.5, upgrade: 3 });
+		const ctx = createStatCtx({ lvl: 3, originalValue: -0.5, upgrade: 3 });
 
 		assert.throws(
 			() => countBonus(ctx),
@@ -221,7 +243,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: ({ x }) => x,
 		});
-		const ctx = createStatCtx({ lvl: 3, value: -0.5, upgrade: 5 });
+		const ctx = createStatCtx({ lvl: 3, originalValue: -0.5, upgrade: 5 });
 
 		assert.throws(
 			() => countBonus(ctx),
@@ -235,7 +257,7 @@ describe('linear()', () => {
 		const countBonus = counter.linear({
 			a1: ({ x }) => -x,
 		});
-		const ctx = createStatCtx({ lvl: 3, value: -0.5, upgrade: 5 });
+		const ctx = createStatCtx({ lvl: 3, originalValue: -0.5, upgrade: 5 });
 
 		assert.throws(
 			() => countBonus(ctx),
@@ -246,22 +268,14 @@ describe('linear()', () => {
 	});
 });
 
-type StatContextProps = {
-	lvl: number;
-	upgrade?: number;
-	value: number;
-	currentValue?: number;
-};
-
-function createStatCtx(props: StatContextProps): StatContext {
+function createStatCtx(props?: Partial<StatContext>): StatContext {
 	return {
-		lvl: props.lvl,
-		upgrade: props.upgrade ?? 0,
-		currentValue: props.currentValue ?? props.value,
-		originalValue: props.value,
-		// Not needed for `linear()`, so these are hardcoded.
-		kind: ItemType.Armor,
-		rarity: Rarity.Common,
-		charClasses: CharClass.W,
+		kind: props?.kind ?? ItemType.Armor,
+		rarity: props?.rarity ?? Rarity.Common,
+		lvl: props?.lvl ?? 1,
+		upgrade: props?.upgrade ?? 0,
+		charClasses: props?.charClasses ?? CharClass.All,
+		currentValue: props?.currentValue ?? props?.originalValue ?? 0,
+		originalValue: props?.originalValue ?? 0,
 	};
 }
