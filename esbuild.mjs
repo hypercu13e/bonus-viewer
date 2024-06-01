@@ -11,6 +11,7 @@ const COMMON_BUILD_OPTIONS = {
 	outdir: OUT_DIR,
 	sourcemap: 'linked',
 	target: 'es2022',
+	tsconfig: './tsconfig.ts.json',
 };
 
 await clearOutDir();
@@ -176,7 +177,7 @@ async function buildProjectTest() {
 		dropLabels: ['DEV'],
 		entryPoints: files
 			.filter((entry) => entry.isFile() && path.extname(entry.name) === '.mts')
-			.map((entry) => path.join(entry.path, entry.name)),
+			.map((entry) => path.join(entry.parentPath, entry.name)),
 		format: 'esm',
 		logLevel: 'error',
 		outExtension: { '.js': '.mjs' },

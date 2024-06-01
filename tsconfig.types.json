@@ -1,0 +1,8 @@
+{
+	"extends": "./tsconfig.ts.json",
+	"compilerOptions": {
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false
+	}
+}

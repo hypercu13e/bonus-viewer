@@ -1,22 +1,6 @@
 {
-	"compilerOptions": {
-		"checkJs": true,
-		"exactOptionalPropertyTypes": true,
-		"forceConsistentCasingInFileNames": true,
-		"isolatedModules": true,
-		"lib": ["esnext", "dom", "dom.iterable"],
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"noEmit": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		"noImplicitReturns": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"noUncheckedIndexedAccess": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"target": "esnext",
-		"verbatimModuleSyntax": true
-	},
-	"include": ["./src/**/*.mts", "./prettier.config.mjs", "./esbuild.mjs"]
+	// This is needed because TS just can't handle both JS and TS files in the same project.
+	// https://github.com/microsoft/TypeScript/issues/15869#issuecomment-1934950464
+	"files": [],
+	"references": [{ "path": "./tsconfig.ts.json" }, { "path": "./tsconfig.js.json" }]
 }

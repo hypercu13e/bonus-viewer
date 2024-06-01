@@ -6,6 +6,9 @@
 	"license": "ISC",
 	"private": true,
 	"type": "module",
+	"imports": {
+		"#test-utils": "./build/test-utils.mjs"
+	},
 	"scripts": {
 		"format": "prettier --write ./",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
