@@ -13,10 +13,10 @@
 		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test --experimental-test-coverage ./build/**/*.test.mjs"
 	},
 	"devDependencies": {
-		"@types/node": "^20.11.19",
-		"dedent": "^1.5.1",
-		"esbuild": "~0.20.0",
+		"@types/node": "^20.13.0",
+		"dedent": "^1.5.3",
+		"esbuild": "~0.21.4",
 		"prettier": "^3.2.5",
-		"typescript": "~5.2.2"
+		"typescript": "~5.4.5"
 	}
 }
