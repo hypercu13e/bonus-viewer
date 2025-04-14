@@ -3,8 +3,8 @@ import type { EvalContext } from './ctx.mjs';
 export type Evaluator = (ctx: EvalContext) => number;
 
 export enum EvalVariable {
-	Lvl,
-	Rarity,
+	Lvl = 0,
+	Rarity = 1,
 }
 
 export function constant(x: number): Evaluator {
@@ -25,7 +25,7 @@ export function polynomial(
 	};
 }
 
-export function R(factor: number = 1): Evaluator {
+export function R(factor = 1): Evaluator {
 	return function evalR(ctx): number {
 		const { r } = ctx;
 

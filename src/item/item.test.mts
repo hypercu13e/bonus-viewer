@@ -1,6 +1,6 @@
-import { createItem, testItemName } from '#test-utils';
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
+import { createItem, testItemName } from '#test-utils';
 import { ItemType, parseItem } from './item.mjs';
 import { Rarity } from './stat.mjs';
 

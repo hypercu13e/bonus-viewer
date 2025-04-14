@@ -1,9 +1,15 @@
 declare global {
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var Engine: any;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var hero: any;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var MargoTipsParser: any;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var itemTip: any;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var _t: any;
+	// biome-ignore lint/suspicious/noExplicitAny: TODO
 	var _t2: any;
 }
 

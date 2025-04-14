@@ -1,11 +1,11 @@
 import * as external from '../external.mjs';
 import {
-	ItemType,
-	RarityModifier,
 	type CharClass,
 	type CountableStatName,
 	type Item,
+	ItemType,
 	type Rarity,
+	RarityModifier,
 	type Stats,
 } from '../item.mjs';
 import type { BonusCount } from './count.mjs';
@@ -95,7 +95,7 @@ export class ItemContext {
 	#item: Item;
 	#results: Map<CountableStatName, Result<BonusDecomposition>> = new Map();
 	#rarityModifier: RarityModifier = RarityModifier.Regular;
-	#rarityModifierWasExplicitlySet: boolean = false;
+	#rarityModifierWasExplicitlySet = false;
 
 	get kind(): ItemType {
 		return this.#item.type;

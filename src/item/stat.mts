@@ -1,4 +1,4 @@
-export const enum Rarity {
+export enum Rarity {
 	Common = 0,
 	Unique = 1,
 	Heroic = 2,
@@ -7,7 +7,7 @@ export const enum Rarity {
 	Artefact = 4,
 }
 
-export const enum RarityModifier {
+export enum RarityModifier {
 	Decreased = -1,
 	Regular = 0,
 	Increased = 1,
@@ -15,7 +15,7 @@ export const enum RarityModifier {
 
 // There's no point in including all 64 possible combinations of character classes, so this contains
 // only the most common ones.
-export const enum CharClass {
+export enum CharClass {
 	W = 1 << 0,
 	P = 1 << 1,
 	B = 1 << 2,
@@ -211,7 +211,7 @@ export function parseStats(data: StatsData): Stats {
 		manaDest: parseNumericStat('manadest', parseInteger),
 		resourcesDestRed: parseNumericStat('resmanaendest', parseInteger),
 		hp: parseNumericStat('hp', parseInteger),
-		hpBonus: parseNumericStat('hpbon', parseFloat),
+		hpBonus: parseNumericStat('hpbon', parseFloatingPoint),
 		hpRegen: parseNumericStat('heal', parseInteger),
 		hpRegenSelfRed: parseNumericStat('adest', parseInteger),
 		hpRegenEnemyRed: parseNumericStat('lowheal2turns', parseInteger),
@@ -276,8 +276,7 @@ export function parseStats(data: StatsData): Stats {
 
 		if (firstValue === undefined || secondValue === undefined) {
 			console.warn(
-				`[Bonus Viewer] Couldn't parse the value of stat '${statName}'. '${statValue}' ` +
-					'does not contain two comma-separated numbers',
+				`[Bonus Viewer] Couldn't parse the value of stat '${statName}'. '${statValue}' does not contain two comma-separated numbers`,
 			);
 
 			return undefined;
@@ -353,7 +352,7 @@ function parseInteger(statValue: string): number {
 	}
 }
 
-function parseFloat(statValue: string): number {
+function parseFloatingPoint(statValue: string): number {
 	const value = Number.parseFloat(statValue);
 
 	if (Number.isFinite(value)) {

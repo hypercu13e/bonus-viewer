@@ -10,16 +10,17 @@
 		"#test-utils": "./build/test-utils.mjs"
 	},
 	"scripts": {
-		"format": "prettier --write ./",
+		"format": "biome check --linter-enabled=false --write",
+		"lint": "biome lint --write",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
 		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test --experimental-test-coverage ./build/**/*.test.mjs"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
 		"@types/node": "^20.13.0",
 		"dedent": "^1.5.3",
 		"esbuild": "~0.21.4",
-		"prettier": "^3.2.5",
 		"typescript": "~5.4.5"
 	}
 }

@@ -1,6 +1,6 @@
-import { parseStats, parseStatsData, type Stats } from './stat.mjs';
+import { type Stats, parseStats, parseStatsData } from './stat.mjs';
 
-export const enum ItemType {
+export enum ItemType {
 	// This item type is extremely rare and the game engine probably treats it as some sort of magic
 	// value. However, there were cases when it was returned by game servers, so let's have it here
 	// as well. Besides, we can use it as the default value in case of parsing errors.

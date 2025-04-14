@@ -4,10 +4,10 @@ import {
 	CharClass,
 	Rarity,
 	StatError,
-	parseStats,
-	parseStatsData,
 	type StatName,
 	type StatsData,
+	parseStats,
+	parseStatsData,
 } from './stat.mjs';
 
 describe('StatError', () => {
@@ -84,13 +84,13 @@ describe('parseStats()', () => {
 			['artefact', Rarity.Artefact],
 		] as const satisfies ReadonlyArray<readonly [string, Rarity]>;
 
-		cases.forEach(([statValue, rarity]) => {
+		for (const [statValue, rarity] of cases) {
 			test(`parses '${statValue}' rarity`, () => {
 				const stats = parseStats({ rarity: statValue });
 
 				assert.equal(stats.rarity, rarity);
 			});
-		});
+		}
 
 		test('coerces unknown rarity to common', () => {
 			const stats = parseStats({ rarity: 'epic' });
@@ -122,13 +122,13 @@ describe('parseStats()', () => {
 			['pbhw', CharClass.W | CharClass.P | CharClass.B | CharClass.H],
 		] as const satisfies ReadonlyArray<readonly [string, CharClass]>;
 
-		cases.forEach(([statValue, charClasses]) => {
+		for (const [statValue, charClasses] of cases) {
 			test(`parses '${statValue}' character classes`, () => {
 				const stats = parseStats({ reqp: statValue });
 
 				assert.equal(stats.charClasses, charClasses);
 			});
-		});
+		}
 
 		test('parses an empty string as no classes requirement', () => {
 			const stats = parseStats({ reqp: '' });

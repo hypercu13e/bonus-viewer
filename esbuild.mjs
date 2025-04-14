@@ -1,8 +1,8 @@
-import dedent from 'dedent';
-import * as esbuild from 'esbuild';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import process from 'node:process';
+import dedent from 'dedent';
+import * as esbuild from 'esbuild';
 
 const OUT_DIR = './build/';
 /** @type {import('esbuild').BuildOptions} */
