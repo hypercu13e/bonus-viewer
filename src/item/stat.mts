@@ -83,15 +83,20 @@ export class StatError extends Error {
 	}
 }
 
-export type StatsData = Readonly<Record<string, string | undefined>>;
+export type StatsData = Map<string, string | undefined>;
 
 export function parseStatsData(str: string): StatsData {
-	return Object.fromEntries(
-		str
-			.split(';')
-			.filter((stat) => stat !== '')
-			.map((stat) => stat.split('=')),
-	);
+	const statsData: StatsData = new Map();
+
+	for (const stat of str.split(';')) {
+		const [name = '', value] = stat.split('=');
+
+		if (name.length > 0) {
+			statsData.set(name, value);
+		}
+	}
+
+	return statsData;
 }
 
 export type Stats = {
@@ -160,18 +165,21 @@ export type CountableStatName = Exclude<
 >;
 
 export function parseStats(data: StatsData): Stats {
-	const rarity = data['rarity'] !== undefined ? parseRarity(data['rarity']) : Rarity.Common;
-	const charClasses = data['reqp'] !== undefined ? parseCharClasses(data['reqp']) : CharClass.All;
+	const rarityStr = data.get('rarity');
+	const rarity = rarityStr !== undefined ? parseRarity(rarityStr) : Rarity.Common;
+	const charClassesStr = data.get('reqp');
+	const charClasses =
+		charClassesStr !== undefined ? parseCharClasses(charClassesStr) : CharClass.All;
 	let lvl: number | undefined;
 
 	// Level is a crucial stat that must be valid to properly count item bonuses, since counters may
 	// assume that the item level is positive. For this reason, there are several assertions in the
 	// code below that uphold this assumption.
 	try {
-		const statValue = data['lvl'];
+		const lvlStr = data.get('lvl');
 
-		if (statValue !== undefined) {
-			lvl = parseInteger(statValue);
+		if (lvlStr !== undefined) {
+			lvl = parseInteger(lvlStr);
 		}
 	} catch (error) {
 		throw new StatError('lvl', { cause: error });
@@ -271,7 +279,7 @@ export function parseStats(data: StatsData): Stats {
 	type StatValueParser = (statValue: string) => number;
 
 	function parseNumericStat(statName: string, parse: StatValueParser): number | undefined {
-		const statValue = data[statName];
+		const statValue = data.get(statName);
 
 		if (statValue === undefined) {
 			return undefined;
@@ -290,7 +298,7 @@ export function parseStats(data: StatsData): Stats {
 		statName: string,
 		parse: StatValueParser,
 	): [number, number] | undefined {
-		const statValue = data[statName];
+		const statValue = data.get(statName);
 
 		if (statValue === undefined) {
 			return undefined;

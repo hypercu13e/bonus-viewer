@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
+import { createStatsData } from '#test-utils';
 import {
 	CharClass,
 	Rarity,
 	StatError,
 	type StatName,
-	type StatsData,
 	parseStats,
 	parseStatsData,
 } from './stat.mts';
@@ -40,36 +40,39 @@ describe('parseStatsData()', () => {
 	test('parses a stat with a value', () => {
 		const data = parseStatsData('rarity=common');
 
-		assert.deepEqual(data, { rarity: 'common' } satisfies StatsData);
+		assert.deepEqual(data, createStatsData({ rarity: 'common' }));
 	});
 
 	test('parses a stat with an empty value', () => {
 		const data = parseStatsData('foo=');
 
-		assert.deepEqual(data, { foo: '' } satisfies StatsData);
+		assert.deepEqual(data, createStatsData({ foo: '' }));
 	});
 
 	test('parses a stat without a value', () => {
 		const data = parseStatsData('cursed');
 
-		assert.deepEqual(data, { cursed: undefined } satisfies StatsData);
+		assert.deepEqual(data, createStatsData({ cursed: undefined }));
 	});
 
 	test('parses multiple stats', () => {
 		const data = parseStatsData('cursed;lvl=1;rarity=common;soulbound');
 
-		assert.deepEqual(data, {
-			cursed: undefined,
-			lvl: '1',
-			rarity: 'common',
-			soulbound: undefined,
-		} satisfies StatsData);
+		assert.deepEqual(
+			data,
+			createStatsData({
+				cursed: undefined,
+				lvl: '1',
+				rarity: 'common',
+				soulbound: undefined,
+			}),
+		);
 	});
 
 	test('returns an empty object when given an empty string', () => {
 		const data = parseStatsData('');
 
-		assert.deepEqual(data, {} satisfies StatsData);
+		assert.deepEqual(data, createStatsData({}));
 	});
 });
 
@@ -86,20 +89,20 @@ describe('parseStats()', () => {
 
 		for (const [statValue, rarity] of cases) {
 			test(`parses '${statValue}' rarity`, () => {
-				const stats = parseStats({ rarity: statValue });
+				const stats = parseStats(createStatsData({ rarity: statValue }));
 
 				assert.equal(stats.rarity, rarity);
 			});
 		}
 
 		test('coerces unknown rarity to common', () => {
-			const stats = parseStats({ rarity: 'epic' });
+			const stats = parseStats(createStatsData({ rarity: 'epic' }));
 
 			assert.equal(stats.rarity, Rarity.Common);
 		});
 
 		test('defaults to common', () => {
-			const stats = parseStats({});
+			const stats = parseStats(createStatsData({}));
 
 			assert.equal(stats.rarity, Rarity.Common);
 		});
@@ -124,20 +127,20 @@ describe('parseStats()', () => {
 
 		for (const [statValue, charClasses] of cases) {
 			test(`parses '${statValue}' character classes`, () => {
-				const stats = parseStats({ reqp: statValue });
+				const stats = parseStats(createStatsData({ reqp: statValue }));
 
 				assert.equal(stats.charClasses, charClasses);
 			});
 		}
 
 		test('parses an empty string as no classes requirement', () => {
-			const stats = parseStats({ reqp: '' });
+			const stats = parseStats(createStatsData({ reqp: '' }));
 
 			assert.equal(stats.charClasses, CharClass.All);
 		});
 
 		test('defaults to all', () => {
-			const stats = parseStats({});
+			const stats = parseStats(createStatsData({}));
 
 			assert.equal(stats.charClasses, CharClass.All);
 		});
@@ -149,12 +152,12 @@ describe('parseStats()', () => {
 
 	test('throws when the level modifier makes the item level non-positive', () => {
 		assert.throws(
-			() => parseStats({ lvl: '2', lowreq: '2' }),
+			() => parseStats(createStatsData({ lvl: '2', lowreq: '2' })),
 			StatError,
 			'Level reduced to 0 was incorrectly parsed successfully',
 		);
 		assert.throws(
-			() => parseStats({ lvl: '2', lowreq: '3' }),
+			() => parseStats(createStatsData({ lvl: '2', lowreq: '3' })),
 			StatError,
 			'Level reduced to -1 was incorrectly parsed successfully',
 		);
@@ -209,28 +212,34 @@ describe('parseStats()', () => {
 	function testLvlStat(statName: StatName, originalStatName: string): undefined {
 		describe(statName, () => {
 			test('parses a positive value', () => {
-				const stats = parseStats({ [originalStatName]: '10' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '10' }));
 
 				assert.equal(stats[statName], 10);
 			});
 
 			test('throws when given a negative value', () => {
-				assert.throws(() => parseStats({ [originalStatName]: '-9' }), StatError);
+				assert.throws(
+					() => parseStats(createStatsData({ [originalStatName]: '-9' })),
+					StatError,
+				);
 			});
 
 			test('truncates floating-point values', () => {
-				const stats = parseStats({ [originalStatName]: '88.8' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '88.8' }));
 
 				assert.equal(stats[statName], 88);
 			});
 
 			if (statName === 'lvl') {
 				test('throws when the given value is invalid', () => {
-					assert.throws(() => parseStats({ [originalStatName]: 'Infinity' }), StatError);
+					assert.throws(
+						() => parseStats(createStatsData({ [originalStatName]: 'Infinity' })),
+						StatError,
+					);
 				});
 			} else {
 				test('ignores invalid values', () => {
-					const stats = parseStats({ [originalStatName]: 'Infinity' });
+					const stats = parseStats(createStatsData({ [originalStatName]: 'Infinity' }));
 
 					assert.equal(stats[statName], undefined);
 				});
@@ -241,37 +250,37 @@ describe('parseStats()', () => {
 	function testIntegerStat(statName: StatName, originalStatName: string): undefined {
 		describe(statName, () => {
 			test('parses a positive value', () => {
-				const stats = parseStats({ [originalStatName]: '23' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '23' }));
 
 				assert.equal(stats[statName], 23);
 			});
 
 			test('parses a negative value', () => {
-				const stats = parseStats({ [originalStatName]: '-42' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-42' }));
 
 				assert.equal(stats[statName], -42);
 			});
 
 			test('truncates floating-point values', () => {
-				const stats = parseStats({ [originalStatName]: '1.732' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '1.732' }));
 
 				assert.equal(stats[statName], 1);
 			});
 
 			test('coerces -0 to 0', () => {
-				const stats = parseStats({ [originalStatName]: '-0' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-0' }));
 
 				assert.equal(stats[statName], 0);
 			});
 
 			test('defaults to undefined', () => {
-				const stats = parseStats({});
+				const stats = parseStats(createStatsData({}));
 
 				assert.equal(stats[statName], undefined);
 			});
 
 			test('ignores invalid values', () => {
-				const stats = parseStats({ [originalStatName]: 'menogram' });
+				const stats = parseStats(createStatsData({ [originalStatName]: 'menogram' }));
 
 				assert.equal(stats[statName], undefined);
 			});
@@ -281,31 +290,31 @@ describe('parseStats()', () => {
 	function testFloatStat(statName: StatName, originalStatName: string): undefined {
 		describe(statName, () => {
 			test('parses a positive value', () => {
-				const stats = parseStats({ [originalStatName]: '7.13' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '7.13' }));
 
 				assert.equal(stats[statName], 7.13);
 			});
 
 			test('parses a negative value', () => {
-				const stats = parseStats({ [originalStatName]: '-12.21' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-12.21' }));
 
 				assert.equal(stats[statName], -12.21);
 			});
 
 			test('coerces -0 to 0', () => {
-				const stats = parseStats({ [originalStatName]: '-0' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-0' }));
 
 				assert.equal(stats[statName], 0);
 			});
 
 			test('defaults to undefined', () => {
-				const stats = parseStats({});
+				const stats = parseStats(createStatsData({}));
 
 				assert.equal(stats[statName], undefined);
 			});
 
 			test('ignores invalid values', () => {
-				const stats = parseStats({ [originalStatName]: 'NaN' });
+				const stats = parseStats(createStatsData({ [originalStatName]: 'NaN' }));
 
 				assert.equal(stats[statName], undefined);
 			});
@@ -319,42 +328,42 @@ describe('parseStats()', () => {
 	): undefined {
 		describe(`${firstStatName} & ${secondStatName}`, () => {
 			test('parses positive values', () => {
-				const stats = parseStats({ [originalStatName]: '77,123' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '77,123' }));
 
 				assert.equal(stats[firstStatName], 77, 'The first stat has an invalid value');
 				assert.equal(stats[secondStatName], 123, 'The second stat has an invalid value');
 			});
 
 			test('parses negative values', () => {
-				const stats = parseStats({ [originalStatName]: '-26,-25' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-26,-25' }));
 
 				assert.equal(stats[firstStatName], -26, 'The first stat has an invalid value');
 				assert.equal(stats[secondStatName], -25, 'The second stat has an invalid value');
 			});
 
 			test('parses mixed values', () => {
-				const stats = parseStats({ [originalStatName]: '-1,1' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-1,1' }));
 
 				assert.equal(stats[firstStatName], -1, 'The first stat has an invalid value');
 				assert.equal(stats[secondStatName], 1, 'The second stat has an invalid value');
 			});
 
 			test('truncates floating-point values', () => {
-				const stats = parseStats({ [originalStatName]: '2.7,7.2' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '2.7,7.2' }));
 
 				assert.equal(stats[firstStatName], 2, 'The first stat has an invalid value');
 				assert.equal(stats[secondStatName], 7, 'The second stat has an invalid value');
 			});
 
 			test('coerces -0 to 0', () => {
-				const stats = parseStats({ [originalStatName]: '-0,-0' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '-0,-0' }));
 
 				assert.equal(stats[firstStatName], 0, 'The first stat has an invalid value');
 				assert.equal(stats[secondStatName], 0, 'The second stat has an invalid value');
 			});
 
 			test('defaults to undefined', () => {
-				const stats = parseStats({});
+				const stats = parseStats(createStatsData({}));
 
 				assert.equal(
 					stats[firstStatName],
@@ -369,7 +378,7 @@ describe('parseStats()', () => {
 			});
 
 			test('ignores incomplete values', () => {
-				const stats = parseStats({ [originalStatName]: '3' });
+				const stats = parseStats(createStatsData({ [originalStatName]: '3' }));
 
 				assert.equal(
 					stats[firstStatName],
@@ -384,7 +393,7 @@ describe('parseStats()', () => {
 			});
 
 			test('ignores invalid values', () => {
-				const stats = parseStats({ [originalStatName]: 'hello,world' });
+				const stats = parseStats(createStatsData({ [originalStatName]: 'hello,world' }));
 
 				assert.equal(
 					stats[firstStatName],

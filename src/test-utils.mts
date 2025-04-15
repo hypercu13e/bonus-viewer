@@ -1,4 +1,5 @@
 import { CharClass, type Item, ItemType, Rarity, type Stats } from '#item';
+import type { StatsData } from './item/stat.mts';
 
 export const testItemName = 'Test item';
 
@@ -14,6 +15,10 @@ export function createItem(props?: ItemProps): Item {
 		type: props?.type ?? ItemType.Unknown,
 		stats: createStats(props?.stats),
 	};
+}
+
+export function createStatsData(props: Record<string, string | undefined> = {}): StatsData {
+	return new Map(Object.entries(props));
 }
 
 export function createStats(props?: Partial<Stats>): Stats {
