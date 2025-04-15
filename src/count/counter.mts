@@ -1,11 +1,11 @@
-import type { ItemType } from '../item.mjs';
-import type { BonusCount } from './count.mjs';
-import * as count from './count.mjs';
-import type { StatContext } from './ctx.mjs';
-import type { Evaluator } from './evaluate.mjs';
-import * as evaluate from './evaluate.mjs';
-import type { Result } from './result.mjs';
-import * as result from './result.mjs';
+import type { ItemType } from '#item';
+import type { BonusCount } from './count.mts';
+import * as count from './count.mts';
+import type { StatContext } from './ctx.mts';
+import type { Evaluator } from './evaluate.mts';
+import * as evaluate from './evaluate.mts';
+import type { Result } from './result.mts';
+import * as result from './result.mts';
 
 export type BonusCounter<T> = (ctx: StatContext) => Result<T>;
 

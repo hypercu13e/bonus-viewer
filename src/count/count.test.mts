@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
-import * as count from './count.mjs';
+import * as count from './count.mts';
 
 describe('isInt()', () => {
 	test('returns true when given an integer count', () => {

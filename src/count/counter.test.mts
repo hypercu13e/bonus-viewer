@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
-import { CharClass, ItemType, Rarity } from '../item.mjs';
-import * as count from './count.mjs';
-import * as counter from './counter.mjs';
-import type { StatContext } from './ctx.mjs';
-import * as evaluate from './evaluate.mjs';
-import * as result from './result.mjs';
+import { CharClass, ItemType, Rarity } from '#item';
+import * as count from './count.mts';
+import * as counter from './counter.mts';
+import type { StatContext } from './ctx.mts';
+import * as evaluate from './evaluate.mts';
+import * as result from './result.mts';
 
 describe('native()', () => {
 	test('returns 0 when the given item has no native bonus', () => {

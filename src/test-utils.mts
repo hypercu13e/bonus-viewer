@@ -1,4 +1,4 @@
-import { CharClass, type Item, ItemType, Rarity, type Stats } from './item.mjs';
+import { CharClass, type Item, ItemType, Rarity, type Stats } from '#item';
 
 export const testItemName = 'Test item';
 

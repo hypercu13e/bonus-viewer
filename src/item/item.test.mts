@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
 import { createItem, testItemName } from '#test-utils';
-import { ItemType, parseItem } from './item.mjs';
-import { Rarity } from './stat.mjs';
+import { ItemType, parseItem } from './item.mts';
+import { Rarity } from './stat.mts';
 
 describe('parseItem()', () => {
 	test('parses a regular item', () => {

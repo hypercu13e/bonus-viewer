@@ -1,4 +1,4 @@
-export * from './item/item.mjs';
+export * from './item/item.mts';
 export {
 	CharClass,
 	Rarity,
@@ -7,4 +7,4 @@ export {
 	type CountableStatName,
 	type StatName,
 	type Stats,
-} from './item/stat.mjs';
+} from './item/stat.mts';

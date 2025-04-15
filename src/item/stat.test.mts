@@ -8,7 +8,7 @@ import {
 	type StatsData,
 	parseStats,
 	parseStatsData,
-} from './stat.mjs';
+} from './stat.mts';
 
 describe('StatError', () => {
 	test('.name is overridden', () => {

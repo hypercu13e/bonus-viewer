@@ -7,20 +7,25 @@
 	"private": true,
 	"type": "module",
 	"imports": {
-		"#test-utils": "./build/test-utils.mjs"
+		"#count": "./src/count.mts",
+		"#external": "./src/external.mts",
+		"#item": "./src/item.mts",
+		"#log": "./src/log.mts",
+		"#test-utils": "./src/test-utils.mts",
+		"#utils": "./src/utils.mts"
 	},
 	"scripts": {
 		"format": "biome check --linter-enabled=false --write",
 		"lint": "biome lint --write",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
-		"test": "NODE_ENV=\"test\" node ./esbuild.mjs && node --test --experimental-test-coverage ./build/**/*.test.mjs"
+		"test": "node --disable-warning ExperimentalWarning --test --experimental-test-coverage ./src/**/*.test.mts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@types/node": "^20.13.0",
 		"dedent": "^1.5.3",
-		"esbuild": "~0.21.4",
+		"esbuild": "~0.25.2",
 		"typescript": "~5.8.3"
 	}
 }

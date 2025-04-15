@@ -1,5 +1,6 @@
-import type { EnumMemberType } from '../types.mjs';
-import { type Stats, parseStats, parseStatsData } from './stat.mjs';
+import * as log from '#log';
+import type { EnumMemberType } from '#utils';
+import { type Stats, parseStats, parseStatsData } from './stat.mts';
 
 export type ItemType = EnumMemberType<typeof ItemType>;
 export const ItemType = Object.freeze({
@@ -62,7 +63,7 @@ export function parseItem(data: ItemData): Item {
 	} else {
 		type = ItemType.Unknown;
 
-		console.warn(`[Bonus Viewer] Unrecognizable item type '${data.cl}'`);
+		log.warn(`[Bonus Viewer] Unrecognizable item type '${data.cl}'`);
 	}
 
 	return {

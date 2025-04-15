@@ -1,1 +1,1 @@
-export * from './count/result.mjs';
+export * from './count/result.mts';

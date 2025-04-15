@@ -1,4 +1,4 @@
-import * as external from '../external.mjs';
+import * as external from '#external';
 import {
 	type CharClass,
 	type CountableStatName,
@@ -7,11 +7,11 @@ import {
 	type Rarity,
 	RarityModifier,
 	type Stats,
-} from '../item.mjs';
-import type { BonusCount } from './count.mjs';
-import type { BonusCounter } from './counter.mjs';
-import type { Result } from './result.mjs';
-import * as result from './result.mjs';
+} from '#item';
+import type { BonusCount } from './count.mts';
+import type { BonusCounter } from './counter.mts';
+import type { Result } from './result.mts';
+import * as result from './result.mts';
 
 export type StatProperties = {
 	readonly regularBonus: BonusCount;

@@ -1,4 +1,5 @@
-import type { EnumMemberType, Writable } from '../types.mjs';
+import * as log from '#log';
+import type { EnumMemberType, Writable } from '#utils';
 
 export type Rarity = number;
 export const Rarity = Object.freeze({
@@ -279,7 +280,7 @@ export function parseStats(data: StatsData): Stats {
 		try {
 			return parse(statValue);
 		} catch (error) {
-			console.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
+			log.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
 
 			return undefined;
 		}
@@ -298,7 +299,7 @@ export function parseStats(data: StatsData): Stats {
 		const [firstValue, secondValue] = statValue.split(',');
 
 		if (firstValue === undefined || secondValue === undefined) {
-			console.warn(
+			log.warn(
 				`[Bonus Viewer] Couldn't parse the value of stat '${statName}'. '${statValue}' does not contain two comma-separated numbers`,
 			);
 
@@ -308,7 +309,7 @@ export function parseStats(data: StatsData): Stats {
 		try {
 			return [parse(firstValue), parse(secondValue)];
 		} catch (error) {
-			console.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
+			log.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
 
 			return undefined;
 		}

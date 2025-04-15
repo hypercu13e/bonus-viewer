@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
-import * as result from './result.mjs';
+import * as result from './result.mts';
 
 describe('isOk()', () => {
 	test('returns true when given an Ok value', () => {

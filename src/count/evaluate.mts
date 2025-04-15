@@ -1,5 +1,5 @@
-import type { EnumMemberType } from '../types.mjs';
-import type { EvalContext } from './ctx.mjs';
+import type { EnumMemberType } from '#utils';
+import type { EvalContext } from './ctx.mts';
 
 export type Evaluator = (ctx: EvalContext) => number;
 

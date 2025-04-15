@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test, { describe } from 'node:test';
-import { Rarity } from '../item.mjs';
-import * as evaluate from './evaluate.mjs';
-import { EvalVariable } from './evaluate.mjs';
+import { Rarity } from '#item';
+import * as evaluate from './evaluate.mts';
+import { EvalVariable } from './evaluate.mts';
 
 describe('polynomial()', () => {
 	test('evaluates a polynomial with given coefficients at `x`', () => {
