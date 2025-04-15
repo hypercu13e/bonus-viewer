@@ -17,6 +17,7 @@
 	"scripts": {
 		"format": "biome check --linter-enabled=false --write",
 		"lint": "biome lint --write",
+		"typecheck": "tsc -b",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",
 		"test": "node --disable-warning ExperimentalWarning --test --experimental-test-coverage ./src/**/*.test.mts"
