@@ -21,8 +21,8 @@ importers:
         specifier: ~0.21.4
         version: 0.21.4
       typescript:
-        specifier: ~5.4.5
-        version: 5.4.5
+        specifier: ~5.8.3
+        version: 5.8.3
 
 packages:
 
@@ -233,8 +233,8 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  typescript@5.4.5:
-    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -379,6 +379,6 @@ snapshots:
       '@esbuild/win32-ia32': 0.21.4
       '@esbuild/win32-x64': 0.21.4
 
-  typescript@5.4.5: {}
+  typescript@5.8.3: {}
 
   undici-types@5.26.5: {}

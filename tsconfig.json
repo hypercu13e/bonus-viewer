@@ -2,5 +2,8 @@
 	// This is needed because TS just can't handle both JS and TS files in the same project.
 	// https://github.com/microsoft/TypeScript/issues/15869#issuecomment-1934950464
 	"files": [],
-	"references": [{ "path": "./tsconfig.ts.json" }, { "path": "./tsconfig.js.json" }]
+	"references": [
+		{ "path": "./tsconfig.js.json" },
+		{ "path": "./tsconfig.ts.json" }
+	]
 }

@@ -1,11 +1,13 @@
+import type { EnumMemberType } from '../types.mjs';
 import type { EvalContext } from './ctx.mjs';
 
 export type Evaluator = (ctx: EvalContext) => number;
 
-export enum EvalVariable {
-	Lvl = 0,
-	Rarity = 1,
-}
+export type EvalVariable = EnumMemberType<typeof EvalVariable>;
+export const EvalVariable = Object.freeze({
+	Lvl: 0,
+	Rarity: 1,
+});
 
 export function constant(x: number): Evaluator {
 	return function evalConstant(): number {

@@ -1,39 +1,62 @@
-export enum Rarity {
-	Common = 0,
-	Unique = 1,
-	Heroic = 2,
-	Upgraded = 2,
-	Legendary = 3,
-	Artefact = 4,
-}
+import type { EnumMemberType, Writable } from '../types.mjs';
 
-export enum RarityModifier {
-	Decreased = -1,
-	Regular = 0,
-	Increased = 1,
-}
+export type Rarity = number;
+export const Rarity = Object.freeze({
+	Common: 0,
+	Unique: 1,
+	Heroic: 2,
+	Upgraded: 2,
+	Legendary: 3,
+	Artefact: 4,
+});
 
+export type RarityModifier = EnumMemberType<typeof RarityModifier>;
+export const RarityModifier = Object.freeze({
+	Decreased: -1,
+	Regular: 0,
+	Increased: 1,
+});
+
+export type CharClass = number;
 // There's no point in including all 64 possible combinations of character classes, so this contains
 // only the most common ones.
-export enum CharClass {
-	W = 1 << 0,
-	P = 1 << 1,
-	B = 1 << 2,
-	M = 1 << 3,
-	T = 1 << 4,
-	H = 1 << 5,
-	Wp = CharClass.W | CharClass.P,
-	Wb = CharClass.W | CharClass.B,
-	Pm = CharClass.P | CharClass.M,
-	Pt = CharClass.P | CharClass.T,
-	Bh = CharClass.B | CharClass.H,
-	Mt = CharClass.M | CharClass.T,
-	Th = CharClass.T | CharClass.H,
-	Wbh = CharClass.W | CharClass.B | CharClass.H,
-	Pmt = CharClass.P | CharClass.M | CharClass.T,
-	Bth = CharClass.B | CharClass.T | CharClass.H,
-	All = CharClass.W | CharClass.P | CharClass.B | CharClass.M | CharClass.T | CharClass.H,
-}
+export const CharClass = {
+	W: 1 << 0,
+	P: 1 << 1,
+	B: 1 << 2,
+	M: 1 << 3,
+	T: 1 << 4,
+	H: 1 << 5,
+	// Properties in object literals cannot refer to self, so the following ones are initialized in
+	// subsequent statements. They are defined here to satisfy TS. The type assertion is required in
+	// each property to widen its type because otherwise `as const` infers the literal `0` type.
+	Wp: 0 as number,
+	Wb: 0 as number,
+	Pm: 0 as number,
+	Pt: 0 as number,
+	Bh: 0 as number,
+	Mt: 0 as number,
+	Th: 0 as number,
+	Wbh: 0 as number,
+	Pmt: 0 as number,
+	Bth: 0 as number,
+	All: 0 as number,
+} as const;
+
+(CharClass as Writable<typeof CharClass>).Wp = CharClass.W | CharClass.P;
+(CharClass as Writable<typeof CharClass>).Wb = CharClass.W | CharClass.B;
+(CharClass as Writable<typeof CharClass>).Pm = CharClass.P | CharClass.M;
+(CharClass as Writable<typeof CharClass>).Pt = CharClass.P | CharClass.T;
+(CharClass as Writable<typeof CharClass>).Bh = CharClass.B | CharClass.H;
+(CharClass as Writable<typeof CharClass>).Mt = CharClass.M | CharClass.T;
+(CharClass as Writable<typeof CharClass>).Th = CharClass.T | CharClass.H;
+(CharClass as Writable<typeof CharClass>).Wbh = CharClass.W | CharClass.B | CharClass.H;
+(CharClass as Writable<typeof CharClass>).Pmt = CharClass.P | CharClass.M | CharClass.T;
+(CharClass as Writable<typeof CharClass>).Bth = CharClass.B | CharClass.T | CharClass.H;
+(CharClass as Writable<typeof CharClass>).All =
+	CharClass.W | CharClass.P | CharClass.B | CharClass.M | CharClass.T | CharClass.H;
+
+Object.freeze(CharClass);
 
 export class StatError extends Error {
 	override name = 'StatError';

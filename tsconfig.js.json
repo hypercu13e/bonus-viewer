@@ -1,18 +1,10 @@
 {
+	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"checkJs": true,
-		"exactOptionalPropertyTypes": true,
-		"forceConsistentCasingInFileNames": true,
 		"lib": ["esnext"],
-		"module": "node16",
+		"module": "node18",
 		"noEmit": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		"noImplicitReturns": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"noUncheckedIndexedAccess": true,
-		"skipLibCheck": true,
-		"strict": true,
 		"target": "esnext"
 	},
 	"include": ["./*.mjs"]
