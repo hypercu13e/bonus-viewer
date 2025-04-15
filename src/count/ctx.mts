@@ -1,6 +1,5 @@
 import * as external from '#external';
 import {
-	type CharClass,
 	type CountableStatName,
 	type Item,
 	ItemType,
@@ -9,7 +8,6 @@ import {
 	type Stats,
 } from '#item';
 import type { BonusCount } from './count.mts';
-import type { BonusCounter } from './counter.mts';
 import type { Result } from './result.mts';
 import * as result from './result.mts';
 

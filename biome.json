@@ -18,6 +18,9 @@
 			"complexity": {
 				"useLiteralKeys": "off"
 			},
+			"correctness": {
+				"noUnusedImports": "warn"
+			},
 			"style": {
 				"noUselessElse": "off"
 			}
