@@ -96,19 +96,17 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 				log.groupStart(statName);
 
 				const counter = counters[statName];
-				const state = new StatCountState(item, statValue, {
-					rarityModifier,
-				});
+				const finalState = counter(new StatCountState(item, statValue, { rarityModifier }));
 
-				counter(state);
-
-				if (state.value === 0) {
-					rarityModifier ??= state.rarityModifier;
+				if (finalState.value === 0) {
+					rarityModifier ??= finalState.rarityModifier;
 					bonuses.set(statName, {
-						count: state.count,
-						native: state.native,
+						count: finalState.count,
+						native: finalState.native,
 						rarityModifier: rarityModifier ?? RarityModifier.Regular,
 					});
+
+					log.debug(`stat '${statName}' decomposed:`, bonuses.get(statName));
 				} else {
 					throw new Error('stat value was not fully decomposed');
 				}

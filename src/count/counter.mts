@@ -45,7 +45,7 @@ export type LinearOptions = {
 };
 
 export function linear(options: LinearOptions): BonusCounter {
-	const { a1 = evaluate.constant(0), a0 = 0, negativeEffect = false } = options;
+	const { a1 = evaluate.constant(1), a0 = 0, negativeEffect = false } = options;
 
 	return function countLinear(state): StatCountState {
 		// TODO: This works out nicely... on paper. Since this operates on floats, it'd be nice to
