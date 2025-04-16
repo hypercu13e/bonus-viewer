@@ -1,23 +1,42 @@
+import type { ItemData } from '#item';
+
 declare global {
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var Engine: any;
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var hero: any;
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var MargoTipsParser: any;
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var itemTip: any;
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var _t: any;
-	// biome-ignore lint/suspicious/noExplicitAny: TODO
-	var _t2: any;
+	var Engine: Engine;
+	var hero: Hero;
+	var MargoTipsParser: MargoTipsParser;
+	var itemTip: ItemTooltipGetter;
+	var _t: TranslationGetter;
+	var _t2: TranslationGetter;
 }
 
-export const newInterfaceEnabled = document.cookie.includes('interface=ni');
-export const oldInterfaceEnabled = document.cookie.includes('interface=si');
+interface Engine {
+	hero: {
+		d: {
+			lvl: number;
+		};
+	};
+}
 
-// All following functions assume that `newInterfaceEnabled` and `oldInterfaceEnabled` are mutually
-// exclusive and exactly one is `true`.
-export function getCharLvl(): number {
-	return newInterfaceEnabled ? globalThis.Engine.hero.d.lvl : globalThis.hero.lvl;
+interface Hero {
+	lvl: number;
+}
+
+interface MargoTipsParser {
+	getTip: (this: this, ...args: Parameters<ItemTooltipGetter>) => string;
+}
+
+export type ItemTooltipGetter = (itemData: ItemData, ...args: unknown[]) => string;
+export type TranslationGetter = (key: string, ...args: unknown[]) => string;
+
+export let newInterfaceEnabled: boolean;
+export let getCharLvl: () => number;
+
+if (document.cookie.includes('interface=ni')) {
+	newInterfaceEnabled = true;
+	getCharLvl = () => globalThis.Engine.hero.d.lvl;
+} else if (document.cookie.includes('interface=si')) {
+	newInterfaceEnabled = false;
+	getCharLvl = () => globalThis.hero.lvl;
+} else {
+	throw new Error('Unsupported game client');
 }
