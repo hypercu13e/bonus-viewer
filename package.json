@@ -15,8 +15,10 @@
 		"#utils": "./src/utils.mts"
 	},
 	"scripts": {
-		"format": "biome check --linter-enabled=false --write",
-		"lint": "biome lint --write",
+		"format": "biome check --linter-enabled=false",
+		"format:fix": "biome check --linter-enabled=false --write",
+		"lint": "biome lint",
+		"lint:fix": "biome lint --write",
 		"typecheck": "tsc -b",
 		"build": "NODE_ENV=\"production\" node ./esbuild.mjs",
 		"start": "NODE_ENV=\"development\" node ./esbuild.mjs",

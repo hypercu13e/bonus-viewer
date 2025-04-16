@@ -22,6 +22,9 @@
 				"noUnusedImports": "warn"
 			},
 			"style": {
+				"noNonNullAssertion": "off",
+				"noInferrableTypes": "off",
+				"noParameterAssign": "off",
 				"noUselessElse": "off"
 			}
 		}
