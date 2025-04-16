@@ -1,3 +1,18 @@
+export class BonusCountError extends Error {
+	override name = 'CountError';
+	counterName: string;
+
+	constructor(
+		counterName: string,
+		message: string = 'failed to decompose a statistic value into individual bonuses',
+		options?: ErrorOptions,
+	) {
+		super(message, options);
+
+		this.counterName = counterName;
+	}
+}
+
 export const integerType = Symbol('IntegerCount');
 export const rangeType = Symbol('RangeCount');
 

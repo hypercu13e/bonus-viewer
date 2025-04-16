@@ -1,5 +1,10 @@
+import type { Rarity } from '#item';
 import type { EnumMemberType } from '#utils';
-import type { EvalContext } from './ctx.mts';
+
+export type EvalContext = {
+	readonly x: number;
+	readonly r: Rarity;
+};
 
 export type Evaluator = (ctx: EvalContext) => number;
 

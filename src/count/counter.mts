@@ -1,36 +1,40 @@
 import type { ItemType } from '#item';
-import type { BonusCount } from './count.mts';
+import { type BonusCount, BonusCountError } from './count.mts';
 import * as count from './count.mts';
-import type { StatContext } from './ctx.mts';
 import type { Evaluator } from './evaluate.mts';
 import * as evaluate from './evaluate.mts';
-import type { Result } from './result.mts';
-import * as result from './result.mts';
+import type { StatCountState } from './state.mts';
 
-export type BonusCounter<T> = (ctx: StatContext) => Result<T>;
+export type BonusCounter = (state: StatCountState) => StatCountState;
+
+export function pipe(...counters: BonusCounter[]): BonusCounter {
+	return function countPipe(state): StatCountState {
+		return counters.reduce((state, counter) => counter(state), state);
+	};
+}
 
 export type NativeOptions = {
 	items: Iterable<ItemType>;
 	evaluator: Evaluator;
 };
 
-export function native(options: NativeOptions): BonusCounter<number> {
+export function native(options: NativeOptions): BonusCounter {
 	const { items, evaluator: evaluate } = options;
-	const itemKinds: ReadonlySet<ItemType> = new Set(items);
+	const itemTypes: ReadonlySet<ItemType> = new Set(items);
 
-	return function countNative(ctx): Result<number> {
-		if (!itemKinds.has(ctx.kind)) {
-			return result.ok(0);
+	return function countNative(state): StatCountState {
+		if (itemTypes.has(state.itemType)) {
+			const value = evaluate({
+				// Native bonuses can be treated as regular bonuses with `n` equal to 1, so `x` can
+				// be calculated rather simply in comparison to the `linear()` counter.
+				x: state.lvl + state.upgrade,
+				r: state.rarity,
+			});
+
+			return state.withNativeBonus(value);
+		} else {
+			return state;
 		}
-
-		const value = evaluate({
-			// Native bonuses can be treated as regular bonuses with `n` equal to 1, so `x` can be
-			// calculated rather simply in comparison to the `linear()` counter.
-			x: ctx.lvl + ctx.upgrade,
-			r: ctx.rarity,
-		});
-
-		return result.ok(value);
 	};
 }
 
@@ -40,10 +44,10 @@ export type LinearOptions = {
 	negativeEffect?: boolean;
 };
 
-export function linear(options: LinearOptions): BonusCounter<BonusCount> {
+export function linear(options: LinearOptions): BonusCounter {
 	const { a1 = evaluate.constant(0), a0 = 0, negativeEffect = false } = options;
 
-	return function countLinear(ctx): Result<BonusCount> {
+	return function countLinear(state): StatCountState {
 		// TODO: This works out nicely... on paper. Since this operates on floats, it'd be nice to
 		// actually verify all of this using error analysis.
 		//
@@ -94,11 +98,11 @@ export function linear(options: LinearOptions): BonusCounter<BonusCount> {
 		//   1. y > 0:    y - 0.5 ≤ t < y + 0.5    ≡    -0.5 < k ≤ 0.5
 		//   2. y < 0:    y - 0.5 < t ≤ y + 0.5    ≡    -0.5 ≤ k < 0.5
 		//   3. y = 0:    y - 0.5 < t < y + 0.5    ≡    -0.5 < k < 0.5
-		const { lvl: l, upgrade, currentValue: k } = ctx;
-		let { originalValue: y } = ctx;
+		const { lvl: l, upgrade, value: k } = state;
+		let { statValue: y } = state;
 		let lowerBound = k - a0 - 0.5;
 		let upperBound = k - a0 + 0.5;
-		let regularBonus: BonusCount;
+		let bonusCount: BonusCount;
 
 		// Negative effects are bonuses that harm the item owner. For such bonuses, `n` is negated,
 		// so we need to reverse the sign of bounds. However, doing so also swaps them (e.g., the
@@ -112,18 +116,20 @@ export function linear(options: LinearOptions): BonusCounter<BonusCount> {
 		}
 
 		{
-			const lowerBoundA1 = a1({ x: l + Math.sign(lowerBound) * upgrade, r: ctx.rarity });
-			const upperBoundA1 = a1({ x: l + Math.sign(upperBound) * upgrade, r: ctx.rarity });
+			const lowerBoundA1 = a1({ x: l + Math.sign(lowerBound) * upgrade, r: state.rarity });
+			const upperBoundA1 = a1({ x: l + Math.sign(upperBound) * upgrade, r: state.rarity });
 
 			if (lowerBoundA1 <= 0) {
-				throw new RangeError(
-					`The function slope must be non-negative, but it is equal to ${lowerBoundA1} in the lower bound case`,
+				throw new BonusCountError(
+					linear.name,
+					`function slope must be positive, but it is equal to ${lowerBoundA1} in the lower bound case instead`,
 				);
 			}
 
 			if (upperBoundA1 <= 0) {
-				throw new RangeError(
-					`The function slope must be non-negative, but it is equal to ${upperBoundA1} in the upper bound case`,
+				throw new BonusCountError(
+					linear.name,
+					`function slope must be positive, but it is equal to ${upperBoundA1} in the upper bound case instead`,
 				);
 			}
 
@@ -150,20 +156,20 @@ export function linear(options: LinearOptions): BonusCounter<BonusCount> {
 		upperBound = Math.floor(upperBound);
 
 		if (lowerBound === upperBound) {
-			regularBonus = count.int(lowerBound);
+			bonusCount = count.int(lowerBound);
 		} else if (lowerBound < upperBound) {
-			regularBonus = count.range(lowerBound, upperBound);
+			bonusCount = count.range(lowerBound, upperBound);
 		} else if (
 			// This covers the second branch of the f(n) function.
 			(y > 0 && -0.5 < k && k <= 0.5) ||
 			(y < 0 && -0.5 <= k && k < 0.5) ||
 			(y === 0 && -0.5 < k && k < 0.5)
 		) {
-			regularBonus = count.int(0);
+			bonusCount = count.int(0);
 		} else {
-			return result.err();
+			throw new BonusCountError(linear.name);
 		}
 
-		return result.ok(regularBonus);
+		return state.withBonusCount(bonusCount);
 	};
 }
