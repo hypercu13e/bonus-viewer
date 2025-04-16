@@ -33,27 +33,36 @@ export const CharClass = {
 	// each property to widen its type because otherwise `as const` infers the literal `0` type.
 	Wp: 0 as number,
 	Wb: 0 as number,
+	Pb: 0 as number,
 	Pm: 0 as number,
 	Pt: 0 as number,
+	Bt: 0 as number,
 	Bh: 0 as number,
 	Mt: 0 as number,
 	Th: 0 as number,
+	Wpb: 0 as number,
 	Wbh: 0 as number,
 	Pmt: 0 as number,
 	Bth: 0 as number,
+	Wpbh: 0 as number,
 	All: 0 as number,
 } as const;
 
 (CharClass as Writable<typeof CharClass>).Wp = CharClass.W | CharClass.P;
 (CharClass as Writable<typeof CharClass>).Wb = CharClass.W | CharClass.B;
+(CharClass as Writable<typeof CharClass>).Pb = CharClass.P | CharClass.B;
 (CharClass as Writable<typeof CharClass>).Pm = CharClass.P | CharClass.M;
 (CharClass as Writable<typeof CharClass>).Pt = CharClass.P | CharClass.T;
+(CharClass as Writable<typeof CharClass>).Bt = CharClass.B | CharClass.T;
 (CharClass as Writable<typeof CharClass>).Bh = CharClass.B | CharClass.H;
 (CharClass as Writable<typeof CharClass>).Mt = CharClass.M | CharClass.T;
 (CharClass as Writable<typeof CharClass>).Th = CharClass.T | CharClass.H;
+(CharClass as Writable<typeof CharClass>).Wpb = CharClass.W | CharClass.P | CharClass.B;
 (CharClass as Writable<typeof CharClass>).Wbh = CharClass.W | CharClass.B | CharClass.H;
 (CharClass as Writable<typeof CharClass>).Pmt = CharClass.P | CharClass.M | CharClass.T;
 (CharClass as Writable<typeof CharClass>).Bth = CharClass.B | CharClass.T | CharClass.H;
+(CharClass as Writable<typeof CharClass>).Wpbh =
+	CharClass.W | CharClass.P | CharClass.B | CharClass.H;
 (CharClass as Writable<typeof CharClass>).All =
 	CharClass.W | CharClass.P | CharClass.B | CharClass.M | CharClass.T | CharClass.H;
 
@@ -99,232 +108,165 @@ export function parseStatsData(str: string): StatsData {
 	return statsData;
 }
 
+export type CountableStatName =
+	| 'armor'
+	| 'armorDest'
+	| 'armorDestRed'
+	| 'physAbs'
+	| 'magicAbs'
+	| 'absDest'
+	| 'fireRes'
+	| 'lightRes'
+	| 'frostRes'
+	| 'poisonRes'
+	| 'resDest'
+	| 'physDmgMin'
+	| 'physDmgMax'
+	| 'rangedDmg'
+	| 'fireDmg'
+	| 'lightDmgMin'
+	| 'lightDmgMax'
+	| 'frostDmg'
+	| 'frostSlow'
+	| 'poisonDmg'
+	| 'poisonSlow'
+	| 'woundDmg'
+	| 'woundChance'
+	| 'pierce'
+	| 'counter'
+	| 'speed'
+	| 'slow'
+	| 'crit'
+	| 'critRed'
+	| 'physCritPower'
+	| 'magicCritPower'
+	| 'critPowerRed'
+	| 'strength'
+	| 'agility'
+	| 'intelligence'
+	| 'baseAttrs'
+	| 'energy'
+	| 'energyDest'
+	| 'mana'
+	| 'manaDest'
+	| 'resourcesDestRed'
+	| 'hp'
+	| 'hpBonus'
+	| 'hpRegen'
+	| 'hpRegenSelfRed'
+	| 'hpRegenEnemyRed'
+	| 'evade'
+	| 'evadeRed'
+	| 'block'
+	| 'pierceBlock';
+export type StatName = Exclude<keyof Stats, 'countableStats'> | CountableStatName;
+
 export type Stats = {
 	readonly rarity: Rarity;
 	readonly charClasses: number;
 	readonly lvl: number | undefined;
 	readonly upgradeLvl: number | undefined;
 	readonly loweredLvl: number | undefined;
-	readonly armor: number | undefined;
-	readonly armorDest: number | undefined;
-	readonly armorDestRed: number | undefined;
-	readonly physAbs: number | undefined;
-	readonly magicAbs: number | undefined;
-	readonly absDest: number | undefined;
-	readonly fireRes: number | undefined;
-	readonly lightRes: number | undefined;
-	readonly frostRes: number | undefined;
-	readonly poisonRes: number | undefined;
-	readonly resDest: number | undefined;
-	readonly physDmgMin: number | undefined;
-	readonly physDmgMax: number | undefined;
-	readonly rangedDmg: number | undefined;
-	readonly fireDmg: number | undefined;
-	readonly lightDmgMin: number | undefined;
-	readonly lightDmgMax: number | undefined;
-	readonly frostDmg: number | undefined;
-	readonly frostSlow: number | undefined;
-	readonly poisonDmg: number | undefined;
-	readonly poisonSlow: number | undefined;
-	readonly woundDmg: number | undefined;
-	readonly woundChance: number | undefined;
-	readonly pierce: number | undefined;
-	readonly counter: number | undefined;
-	readonly speed: number | undefined;
-	readonly slow: number | undefined;
-	readonly crit: number | undefined;
-	readonly critRed: number | undefined;
-	readonly physCritPower: number | undefined;
-	readonly magicCritPower: number | undefined;
-	readonly critPowerRed: number | undefined;
-	readonly strength: number | undefined;
-	readonly agility: number | undefined;
-	readonly intelligence: number | undefined;
-	readonly baseAttrs: number | undefined;
-	readonly energy: number | undefined;
-	readonly energyDest: number | undefined;
-	readonly mana: number | undefined;
-	readonly manaDest: number | undefined;
-	readonly resourcesDestRed: number | undefined;
-	readonly hp: number | undefined;
-	readonly hpBonus: number | undefined;
-	readonly hpRegen: number | undefined;
-	readonly hpRegenSelfRed: number | undefined;
-	readonly hpRegenEnemyRed: number | undefined;
-	readonly evade: number | undefined;
-	readonly evadeRed: number | undefined;
-	readonly block: number | undefined;
-	readonly pierceBlock: number | undefined;
+	readonly countableStats: CountableStats;
 };
+export type CountableStats = ReadonlyMap<CountableStatName, number>;
 
-export type StatName = keyof Stats;
+type CountableStatParser = (
+	countableStats: Map<CountableStatName, number>,
+	statValue: string,
+) => undefined;
+type NumberParser = (statValue: string) => number;
 
-export type CountableStatName = Exclude<
-	StatName,
-	'lvl' | 'upgradeLvl' | 'loweredLvl' | 'rarity' | 'charClasses'
->;
+const countableStatParsers: Readonly<Record<string, CountableStatParser>> = Object.freeze({
+	ac: numericStat('armor', parseInteger),
+	acdmg: numericStat('armorDest', parseInteger),
+	resacdmg: numericStat('armorDestRed', parseInteger),
+	absorb: numericStat('physAbs', parseInteger),
+	absorbm: numericStat('magicAbs', parseInteger),
+	abdest: numericStat('absDest', parseInteger),
+	resfire: numericStat('fireRes', parseInteger),
+	reslight: numericStat('lightRes', parseInteger),
+	resfrost: numericStat('frostRes', parseInteger),
+	act: numericStat('poisonRes', parseInteger),
+	resdmg: numericStat('resDest', parseInteger),
+	dmg: tupleStat('physDmgMin', 'physDmgMax', parseInteger),
+	pdmg: numericStat('rangedDmg', parseInteger),
+	fire: numericStat('fireDmg', parseInteger),
+	light: tupleStat('lightDmgMin', 'lightDmgMax', parseInteger),
+	frost: tupleStat('frostSlow', 'frostDmg', parseInteger),
+	poison: tupleStat('poisonSlow', 'poisonDmg', parseInteger),
+	wound: tupleStat('woundChance', 'woundDmg', parseInteger),
+	pierce: numericStat('pierce', parseInteger),
+	contra: numericStat('counter', parseInteger),
+	// The game server returns these two as integers, not floats.
+	sa: numericStat('speed', parseInteger),
+	slow: numericStat('slow', parseInteger),
+	crit: numericStat('crit', parseInteger),
+	lowcrit: numericStat('critRed', parseInteger),
+	critval: numericStat('physCritPower', parseInteger),
+	critmval: numericStat('magicCritPower', parseInteger),
+	lowcritallval: numericStat('critPowerRed', parseInteger),
+	ds: numericStat('strength', parseInteger),
+	dz: numericStat('agility', parseInteger),
+	di: numericStat('intelligence', parseInteger),
+	da: numericStat('baseAttrs', parseInteger),
+	energybon: numericStat('energy', parseInteger),
+	endest: numericStat('energyDest', parseInteger),
+	manabon: numericStat('mana', parseInteger),
+	manadest: numericStat('manaDest', parseInteger),
+	resmanaendest: numericStat('resourcesDestRed', parseInteger),
+	hp: numericStat('hp', parseInteger),
+	hpbon: numericStat('hpBonus', parseFloatingPoint),
+	heal: numericStat('hpRegen', parseInteger),
+	adest: numericStat('hpRegenSelfRed', parseInteger),
+	lowheal2turns: numericStat('hpRegenEnemyRed', parseInteger),
+	evade: numericStat('evade', parseInteger),
+	lowevade: numericStat('evadeRed', parseInteger),
+	blok: numericStat('block', parseInteger),
+	pierceb: numericStat('pierceBlock', parseInteger),
+} satisfies Record<string, CountableStatParser>);
 
 export function parseStats(data: StatsData): Stats {
-	const rarityStr = data.get('rarity');
-	const rarity = rarityStr !== undefined ? parseRarity(rarityStr) : Rarity.Common;
-	const charClassesStr = data.get('reqp');
-	const charClasses =
-		charClassesStr !== undefined ? parseCharClasses(charClassesStr) : CharClass.All;
-	let lvl: number | undefined;
+	const rarity = parseRarity(data);
+	const charClasses = parseCharClasses(data);
+	const lvl = parseLvl(data);
+	const upgradeLvl = parseUpgradeLvl(data);
+	const loweredLvl = parseLoweredLvl(data);
+	const countableStats = new Map<CountableStatName, number>();
 
-	// Level is a crucial stat that must be valid to properly count item bonuses, since counters may
-	// assume that the item level is positive. For this reason, there are several assertions in the
-	// code below that uphold this assumption.
-	try {
-		const lvlStr = data.get('lvl');
-
-		if (lvlStr !== undefined) {
-			lvl = parseInteger(lvlStr);
-		}
-	} catch (error) {
-		throw new StatError('lvl', { cause: error });
-	}
-
-	if (lvl !== undefined && lvl < 1) {
-		throw new StatError('lvl', 'the item level must be positive');
-	}
-
-	const [physDmgMin, physDmgMax] = parseTupleStat('dmg', parseInteger) ?? [];
-	const [lightDmgMin, lightDmgMax] = parseTupleStat('light', parseInteger) ?? [];
-	const [frostSlow, frostDmg] = parseTupleStat('frost', parseInteger) ?? [];
-	const [poisonSlow, poisonDmg] = parseTupleStat('poison', parseInteger) ?? [];
-	const [woundChance, woundDmg] = parseTupleStat('wound', parseInteger) ?? [];
-	const stats: Stats = {
-		rarity,
-		charClasses,
-		lvl: parseNumericStat('lvl', parseInteger),
-		upgradeLvl: parseNumericStat('enhancement_upgrade_lvl', parseInteger),
-		loweredLvl: parseNumericStat('lowreq', parseInteger),
-		armor: parseNumericStat('ac', parseInteger),
-		armorDest: parseNumericStat('acdmg', parseInteger),
-		armorDestRed: parseNumericStat('resacdmg', parseInteger),
-		physAbs: parseNumericStat('absorb', parseInteger),
-		magicAbs: parseNumericStat('absorbm', parseInteger),
-		absDest: parseNumericStat('abdest', parseInteger),
-		fireRes: parseNumericStat('resfire', parseInteger),
-		lightRes: parseNumericStat('reslight', parseInteger),
-		frostRes: parseNumericStat('resfrost', parseInteger),
-		poisonRes: parseNumericStat('act', parseInteger),
-		resDest: parseNumericStat('resdmg', parseInteger),
-		physDmgMin,
-		physDmgMax,
-		rangedDmg: parseNumericStat('pdmg', parseInteger),
-		fireDmg: parseNumericStat('fire', parseInteger),
-		lightDmgMin,
-		lightDmgMax,
-		frostDmg,
-		frostSlow,
-		poisonDmg,
-		poisonSlow,
-		woundDmg,
-		woundChance,
-		pierce: parseNumericStat('pierce', parseInteger),
-		counter: parseNumericStat('contra', parseInteger),
-		// The game server returns these two as integers, not floats.
-		speed: parseNumericStat('sa', parseInteger),
-		slow: parseNumericStat('slow', parseInteger),
-		crit: parseNumericStat('crit', parseInteger),
-		critRed: parseNumericStat('lowcrit', parseInteger),
-		physCritPower: parseNumericStat('critval', parseInteger),
-		magicCritPower: parseNumericStat('critmval', parseInteger),
-		critPowerRed: parseNumericStat('lowcritallval', parseInteger),
-		strength: parseNumericStat('ds', parseInteger),
-		agility: parseNumericStat('dz', parseInteger),
-		intelligence: parseNumericStat('di', parseInteger),
-		baseAttrs: parseNumericStat('da', parseInteger),
-		energy: parseNumericStat('energybon', parseInteger),
-		energyDest: parseNumericStat('endest', parseInteger),
-		mana: parseNumericStat('manabon', parseInteger),
-		manaDest: parseNumericStat('manadest', parseInteger),
-		resourcesDestRed: parseNumericStat('resmanaendest', parseInteger),
-		hp: parseNumericStat('hp', parseInteger),
-		hpBonus: parseNumericStat('hpbon', parseFloatingPoint),
-		hpRegen: parseNumericStat('heal', parseInteger),
-		hpRegenSelfRed: parseNumericStat('adest', parseInteger),
-		hpRegenEnemyRed: parseNumericStat('lowheal2turns', parseInteger),
-		evade: parseNumericStat('evade', parseInteger),
-		evadeRed: parseNumericStat('lowevade', parseInteger),
-		block: parseNumericStat('blok', parseInteger),
-		pierceBlock: parseNumericStat('pierceb', parseInteger),
-	};
-
-	if (stats.upgradeLvl !== undefined && stats.upgradeLvl < 0) {
-		throw new StatError('upgradeLvl', 'an upgrade level must be non-negative');
-	}
-
-	if (stats.loweredLvl !== undefined && stats.loweredLvl < 0) {
-		throw new StatError('loweredLvl', 'the level modifier must be non-negative');
-	}
-
-	if (
-		stats.lvl !== undefined &&
-		stats.loweredLvl !== undefined &&
-		stats.lvl - stats.loweredLvl <= 0
-	) {
+	if (lvl !== undefined && loweredLvl !== undefined && lvl - loweredLvl <= 0) {
 		throw new StatError(
 			'loweredLvl',
 			'the level modifier cannot reduce the item level to a non-positive number',
 		);
 	}
 
-	return stats;
+	// Remove stats that we already consumed so that we don't unnecessarily iterate over them.
+	data.delete('rarity');
+	data.delete('reqp');
+	data.delete('lvl');
+	data.delete('enhancement_upgrade_lvl');
+	data.delete('lowreq');
 
-	// =========================================================================================
-
-	type StatValueParser = (statValue: string) => number;
-
-	function parseNumericStat(statName: string, parse: StatValueParser): number | undefined {
-		const statValue = data.get(statName);
-
-		if (statValue === undefined) {
-			return undefined;
-		}
-
-		try {
-			return parse(statValue);
-		} catch (error) {
-			log.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
-
-			return undefined;
+	for (const [statName, statValue] of data) {
+		if (statValue !== undefined) {
+			countableStatParsers[statName]?.(countableStats, statValue);
 		}
 	}
 
-	function parseTupleStat(
-		statName: string,
-		parse: StatValueParser,
-	): [number, number] | undefined {
-		const statValue = data.get(statName);
-
-		if (statValue === undefined) {
-			return undefined;
-		}
-
-		const [firstValue, secondValue] = statValue.split(',');
-
-		if (firstValue === undefined || secondValue === undefined) {
-			log.warn(
-				`[Bonus Viewer] Couldn't parse the value of stat '${statName}'. '${statValue}' does not contain two comma-separated numbers`,
-			);
-
-			return undefined;
-		}
-
-		try {
-			return [parse(firstValue), parse(secondValue)];
-		} catch (error) {
-			log.warn(`[Bonus Viewer] Couldn't parse the value of stat '${statName}'.`, error);
-
-			return undefined;
-		}
-	}
+	return {
+		rarity,
+		charClasses,
+		lvl,
+		upgradeLvl,
+		loweredLvl,
+		countableStats,
+	};
 }
 
-function parseRarity(statValue: string): Rarity {
+function parseRarity(statsData: StatsData): Rarity {
+	const statValue = statsData.get('rarity');
+
 	switch (statValue) {
 		case 'common':
 			return Rarity.Common;
@@ -343,7 +285,8 @@ function parseRarity(statValue: string): Rarity {
 	}
 }
 
-function parseCharClasses(statValue: string): number {
+function parseCharClasses(statsData: StatsData): number {
+	const statValue = statsData.get('reqp') ?? '';
 	let charClasses = 0;
 
 	for (const classAbbr of statValue) {
@@ -369,9 +312,130 @@ function parseCharClasses(statValue: string): number {
 		}
 	}
 
-	// If, for some reason, we received a string but none classes were recognized, then assume that
-	// an item can be used by any character class.
+	// If none classes were recognized, then assume that an item can be used by any character class.
 	return charClasses > 0 ? charClasses : CharClass.All;
+}
+
+function parseLvl(statsData: StatsData): number | undefined {
+	const statValue = statsData.get('lvl');
+	let lvl: number;
+
+	if (statValue === undefined) {
+		return undefined;
+	}
+
+	try {
+		lvl = parseInteger(statValue);
+	} catch (error) {
+		throw new StatError('lvl', { cause: error });
+	}
+
+	if (lvl !== undefined && lvl < 1) {
+		throw new StatError('lvl', 'the item level must be positive');
+	}
+
+	return lvl;
+}
+
+function parseUpgradeLvl(statsData: StatsData): number | undefined {
+	const statValue = statsData.get('enhancement_upgrade_lvl');
+	let upgradeLvl: number;
+
+	if (statValue === undefined) {
+		return undefined;
+	}
+
+	try {
+		upgradeLvl = parseInteger(statValue);
+	} catch (error) {
+		throw new StatError('lvl', { cause: error });
+	}
+
+	if (upgradeLvl !== undefined && upgradeLvl < 0) {
+		throw new StatError('upgradeLvl', 'an upgrade level must be non-negative');
+	}
+
+	return upgradeLvl;
+}
+
+function parseLoweredLvl(statsData: StatsData): number | undefined {
+	const statValue = statsData.get('lowreq');
+	let loweredLvl: number;
+
+	if (statValue === undefined) {
+		return undefined;
+	}
+
+	try {
+		loweredLvl = parseInteger(statValue);
+	} catch (error) {
+		throw new StatError('lvl', { cause: error });
+	}
+
+	if (loweredLvl !== undefined && loweredLvl < 0) {
+		throw new StatError('loweredLvl', 'the level modifier must be non-negative');
+	}
+
+	return loweredLvl;
+}
+
+function numericStat(statName: CountableStatName, parseNumber: NumberParser): CountableStatParser {
+	return function parseNumericStat(countableStats, statValue): undefined {
+		let parsedStatValue: number;
+
+		try {
+			parsedStatValue = parseNumber(statValue);
+		} catch (error) {
+			log.warn(`[Bonus Viewer] Couldn't parse the value for stat '${statName}'.`, error);
+
+			return undefined;
+		}
+
+		countableStats.set(statName, parsedStatValue);
+	};
+}
+
+function tupleStat(
+	firstStatName: CountableStatName,
+	secondStatName: CountableStatName,
+	parseNumber: NumberParser,
+): CountableStatParser {
+	return function countTupleStat(countableStats, statValue): undefined {
+		const [firstStatValue, secondStatValue] = statValue.split(',');
+
+		if (firstStatValue === undefined || secondStatValue === undefined) {
+			log.warn(
+				`[Bonus Viewer] Couldn't parse the value for stats '${firstStatName}' and '${secondStatName}'. '${statValue.replaceAll("'", "\\'")}' does not contain two comma-separated numbers`,
+			);
+
+			return undefined;
+		}
+
+		let parsedFirstStatValue: number;
+		let parsedSecondStatValue: number;
+
+		try {
+			parsedFirstStatValue = parseNumber(firstStatValue);
+		} catch (error) {
+			log.warn(`[Bonus Viewer] Couldn't parse the value for stat '${firstStatName}'.`, error);
+
+			return undefined;
+		}
+
+		try {
+			parsedSecondStatValue = parseNumber(secondStatValue);
+		} catch (error) {
+			log.warn(
+				`[Bonus Viewer] Couldn't parse the value for stat '${secondStatName}'.`,
+				error,
+			);
+
+			return undefined;
+		}
+
+		countableStats.set(firstStatName, parsedFirstStatValue);
+		countableStats.set(secondStatName, parsedSecondStatValue);
+	};
 }
 
 function parseInteger(statValue: string): number {

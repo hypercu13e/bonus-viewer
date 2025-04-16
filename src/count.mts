@@ -21,7 +21,7 @@ export type BonusDecomposition = {
 	readonly rarityModifier: RarityModifier;
 };
 
-const counters: Record<CountableStatName, BonusCounter> = Object.freeze({
+const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freeze({
 	armor: counter.unimplemented,
 	armorDest: counter.unimplemented,
 	armorDestRed: counter.unimplemented,
@@ -91,16 +91,12 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 
 		// SAFETY: `counters` is a frozen object with keys of type `CountableStatName`, so it cannot
 		// contain keys of other type.
-		// TODO: Consider changing `Item.stats` to a map so that we can only invoke counters for
-		// stats that an item has.
-		for (const [statName, counter] of Object.entries(counters) as [
-			CountableStatName,
-			BonusCounter,
-		][]) {
+		for (const [statName, statValue] of item.stats.countableStats) {
 			try {
 				log.groupStart(statName);
 
-				const state = new StatCountState(item, statName, {
+				const counter = counters[statName];
+				const state = new StatCountState(item, statValue, {
 					rarityModifier,
 				});
 

@@ -12,8 +12,8 @@ export type StatCountStateOptions = {
 
 export class StatCountState {
 	#item: Item;
-	#statName: CountableStatName;
 	#value: number;
+	#statValue: number;
 	#count: BonusCount;
 	#native: boolean;
 	#rarityModifier: RarityModifier | undefined;
@@ -59,8 +59,7 @@ export class StatCountState {
 	}
 
 	get statValue(): number {
-		// SAFETY: Validated by the constructor.
-		return this.#item.stats[this.#statName]!;
+		return this.#statValue;
 	}
 
 	get count(): BonusCount {
@@ -71,38 +70,32 @@ export class StatCountState {
 		return this.#native;
 	}
 
-	constructor(item: Item, statName: CountableStatName, options?: StatCountStateOptions) {
-		const statValue = item.stats[statName];
-
-		if (statValue === undefined) {
-			throw new TypeError('cannot count a stat that has no value');
-		}
-
+	constructor(item: Item, statValue: number, options?: StatCountStateOptions) {
 		this.#item = item;
-		this.#statName = statName;
 		this.#value = options?.value ?? statValue;
+		this.#statValue = statValue;
 		this.#count = options?.count ?? count.int(0);
 		this.#native = options?.native ?? false;
 		this.#rarityModifier = options?.rarityModifier;
 	}
 
 	hasStat(name: CountableStatName): boolean {
-		return this.#item.stats[name] !== undefined;
+		return this.#item.stats.countableStats.has(name);
 	}
 
 	withRarityModifier(modifier: RarityModifier): StatCountState {
-		return new StatCountState(this.#item, this.#statName, { rarityModifier: modifier });
+		return new StatCountState(this.#item, this.#statValue, { rarityModifier: modifier });
 	}
 
 	withNativeBonus(value: number): StatCountState {
-		return new StatCountState(this.#item, this.#statName, {
+		return new StatCountState(this.#item, this.#statValue, {
 			value: this.#value - value,
 			native: true,
 		});
 	}
 
 	withBonusCount(value: number, count: BonusCount): StatCountState {
-		return new StatCountState(this.#item, this.#statName, {
+		return new StatCountState(this.#item, this.#statValue, {
 			value: this.#value - value,
 			count,
 		});
