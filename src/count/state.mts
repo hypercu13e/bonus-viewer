@@ -3,12 +3,19 @@ import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifie
 import type { BonusCount } from './count.mts';
 import * as count from './count.mts';
 
+export type StatCountStateOptions = {
+	value?: number | undefined;
+	count?: BonusCount | undefined;
+	native?: boolean | undefined;
+	rarityModifier?: RarityModifier | undefined;
+};
+
 export class StatCountState {
 	#item: Item;
 	#statName: CountableStatName;
 	#value: number;
-	#count: BonusCount = count.int(0);
-	#native: boolean = false;
+	#count: BonusCount;
+	#native: boolean;
 	#rarityModifier: RarityModifier | undefined;
 
 	get itemType(): ItemType {
@@ -17,6 +24,10 @@ export class StatCountState {
 
 	get rarity(): Rarity {
 		return this.#item.stats.rarity + (this.#rarityModifier ?? RarityModifier.Regular);
+	}
+
+	get rarityModifier(): RarityModifier | undefined {
+		return this.#rarityModifier;
 	}
 
 	get lvl(): number {
@@ -52,16 +63,27 @@ export class StatCountState {
 		return this.#item.stats[this.#statName]!;
 	}
 
-	constructor(item: Item, statName: CountableStatName) {
+	get count(): BonusCount {
+		return this.#count;
+	}
+
+	get native(): boolean {
+		return this.#native;
+	}
+
+	constructor(item: Item, statName: CountableStatName, options?: StatCountStateOptions) {
 		const statValue = item.stats[statName];
 
 		if (statValue === undefined) {
-			throw new Error('Cannot count a stat that has no value');
+			throw new TypeError('cannot count a stat that has no value');
 		}
 
 		this.#item = item;
 		this.#statName = statName;
-		this.#value = statValue;
+		this.#value = options?.value ?? statValue;
+		this.#count = options?.count ?? count.int(0);
+		this.#native = options?.native ?? false;
+		this.#rarityModifier = options?.rarityModifier;
 	}
 
 	hasStat(name: CountableStatName): boolean {
@@ -69,24 +91,20 @@ export class StatCountState {
 	}
 
 	withRarityModifier(modifier: RarityModifier): StatCountState {
-		const state = new StatCountState(this.#item, this.#statName);
-		state.#rarityModifier = modifier;
-
-		return state;
+		return new StatCountState(this.#item, this.#statName, { rarityModifier: modifier });
 	}
 
 	withNativeBonus(value: number): StatCountState {
-		const state = new StatCountState(this.#item, this.#statName);
-		state.#native = true;
-		state.#value = this.#value - value;
-
-		return state;
+		return new StatCountState(this.#item, this.#statName, {
+			value: this.#value - value,
+			native: true,
+		});
 	}
 
-	withBonusCount(count: BonusCount): StatCountState {
-		const state = new StatCountState(this.#item, this.#statName);
-		state.#count = count;
-
-		return state;
+	withBonusCount(value: number, count: BonusCount): StatCountState {
+		return new StatCountState(this.#item, this.#statName, {
+			value: this.#value - value,
+			count,
+		});
 	}
 }

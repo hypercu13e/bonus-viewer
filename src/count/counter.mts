@@ -170,6 +170,10 @@ export function linear(options: LinearOptions): BonusCounter {
 			throw new BonusCountError(linear.name);
 		}
 
-		return state.withBonusCount(bonusCount);
+		return state.withBonusCount(k, bonusCount);
 	};
+}
+
+export function unimplemented(): never {
+	throw new BonusCountError(unimplemented.name, 'not yet implemented');
 }
