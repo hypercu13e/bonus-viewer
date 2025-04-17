@@ -17,7 +17,7 @@ export {
 export type ItemBonuses = Map<CountableStatName, BonusDecomposition | undefined>;
 
 export type BonusDecomposition = {
-	readonly count: BonusCount;
+	readonly bonusCount: BonusCount;
 	readonly native: boolean;
 	readonly rarityModifier: RarityModifier;
 };
@@ -102,7 +102,7 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 				if (finalState.value === 0) {
 					rarityModifier ??= finalState.rarityModifier;
 					bonuses.set(statName, {
-						count: finalState.count,
+						bonusCount: finalState.count,
 						native: finalState.native,
 						rarityModifier: rarityModifier ?? RarityModifier.Regular,
 					});

@@ -9,6 +9,7 @@
 	"imports": {
 		"#count": "./src/count.mts",
 		"#external": "./src/external.mts",
+		"#format": "./src/format.mts",
 		"#item": "./src/item.mts",
 		"#log": "./src/log.mts",
 		"#test-utils": "./src/test-utils.mts",
