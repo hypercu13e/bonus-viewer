@@ -6,6 +6,15 @@ import type { BonusCounter } from './count/counter.mts';
 import * as counter from './count/counter.mts';
 import { crit, critPower, critPowerRed, critRed } from './count/crit.mts';
 import { block, evade, evadeRed, pierceBlock } from './count/evasion.mts';
+import {
+	energy,
+	energyDest,
+	energyDestChance,
+	mana,
+	manaDest,
+	manaDestChance,
+	resourcesDestRed,
+} from './count/resources.mts';
 import { StatCountState } from './count/state.mts';
 
 export {
@@ -61,13 +70,13 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	agility,
 	intelligence,
 	baseAttrs,
-	energy: counter.unimplemented,
-	energyDest: counter.unimplemented,
-	energyDestChance: counter.unimplemented,
-	mana: counter.unimplemented,
-	manaDest: counter.unimplemented,
-	manaDestChance: counter.unimplemented,
-	resourcesDestRed: counter.unimplemented,
+	energy,
+	energyDest,
+	energyDestChance,
+	mana,
+	manaDest,
+	manaDestChance,
+	resourcesDestRed,
 	hp: counter.unimplemented,
 	hpBonus: counter.unimplemented,
 	hpRegen: counter.unimplemented,
@@ -93,6 +102,7 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 		let rarityModifier: RarityModifier | undefined;
 
 		log.groupStart(item.name);
+		log.debug(item);
 
 		// SAFETY: `counters` is a frozen object with keys of type `CountableStatName`, so it cannot
 		// contain keys of other type.

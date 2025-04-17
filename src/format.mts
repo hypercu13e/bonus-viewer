@@ -27,6 +27,26 @@ export function singular(statName: CountableStatName): StatFormatter {
 	};
 }
 
+export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
+	return function formatMultipleSingleLine(bonuses, translation): string {
+		const decompositions = statNames.map((statName) => bonuses.get(statName));
+
+		if (
+			decompositions.length === 0 ||
+			decompositions.some((decomposition) => decomposition === undefined)
+		) {
+			return translation;
+		} else {
+			// SAFETY: Any `undefined` value is handled by the preceding branch.
+			const formattedDecomposition = formatSegments(
+				toSegments(decompositions as BonusDecomposition[]),
+			);
+
+			return withAppendedBonusDecomposition(translation, formattedDecomposition);
+		}
+	};
+}
+
 function withAppendedBonusDecomposition(
 	translation: string,
 	formattedDecomposition: string,

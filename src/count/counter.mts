@@ -21,6 +21,18 @@ export function flatMap(fn: (state: StatCountState) => BonusCounter): BonusCount
 	};
 }
 
+export function oneOf(variants: Record<number, BonusCounter>): BonusCounter {
+	return function countOneOf(state): StatCountState {
+		const counter = variants[state.value];
+
+		if (counter !== undefined) {
+			return counter(state);
+		} else {
+			throw new BonusCountError(oneOf.name, `missing variant ${state.value}`);
+		}
+	};
+}
+
 export type NativeOptions = {
 	items: Iterable<ItemType>;
 	evaluator: Evaluator;
