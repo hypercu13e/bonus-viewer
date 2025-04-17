@@ -84,13 +84,20 @@ export class StatCountState {
 	}
 
 	withRarityModifier(modifier: RarityModifier): StatCountState {
-		return new StatCountState(this.#item, this.#statValue, { rarityModifier: modifier });
+		return new StatCountState(this.#item, this.#statValue, {
+			value: this.#value,
+			count: this.#count,
+			native: this.#native,
+			rarityModifier: modifier,
+		});
 	}
 
 	withNativeBonus(value: number): StatCountState {
 		return new StatCountState(this.#item, this.#statValue, {
 			value: this.#value - value,
+			count: this.#count,
 			native: true,
+			rarityModifier: this.#rarityModifier,
 		});
 	}
 
@@ -98,6 +105,8 @@ export class StatCountState {
 		return new StatCountState(this.#item, this.#statValue, {
 			value: this.#value - value,
 			count,
+			native: this.#native,
+			rarityModifier: this.#rarityModifier,
 		});
 	}
 }
