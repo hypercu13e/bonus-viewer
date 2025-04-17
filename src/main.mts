@@ -10,6 +10,10 @@ const statFormatters = new Map<string, StatFormatter>([
 	['bonus_critval %val%', format.append('physCritPower')],
 	['bonus_of-critmval %val%', format.append('magicCritPower')],
 	['bonus_lowcritallval %val%', format.append('critPowerRed')],
+	['bonus_evade %val%', format.append('evade')],
+	['bonus_lowevade %val%', format.append('evadeRed')],
+	['bonus_blok %val%', format.append('block')],
+	['bonus_pierceb %val%', format.append('pierceBlock')],
 ]);
 const stylesheet = new CSSStyleSheet();
 let bonusDecompositionColor: string;

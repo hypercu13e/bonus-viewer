@@ -13,6 +13,14 @@ export function pipe(...counters: BonusCounter[]): BonusCounter {
 	};
 }
 
+export function flatMap(fn: (state: StatCountState) => BonusCounter): BonusCounter {
+	return function countFlatMap(state): StatCountState {
+		const counter = fn(state);
+
+		return counter(state);
+	};
+}
+
 export type NativeOptions = {
 	items: Iterable<ItemType>;
 	evaluator: Evaluator;
@@ -172,6 +180,12 @@ export function linear(options: LinearOptions): BonusCounter {
 		}
 
 		return state.withBonusCount(k, bonusCount);
+	};
+}
+
+export function constant(n: number): BonusCounter {
+	return function countConstant(state): StatCountState {
+		return state.withBonusCount(state.value, count.int(n));
 	};
 }
 

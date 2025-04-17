@@ -4,6 +4,7 @@ import type { BonusCount } from './count/count.mts';
 import type { BonusCounter } from './count/counter.mts';
 import * as counter from './count/counter.mts';
 import { crit, critPower, critPowerRed, critRed } from './count/crit.mts';
+import { block, evade, evadeRed, pierceBlock } from './count/evasion.mts';
 import { StatCountState } from './count/state.mts';
 
 export {
@@ -69,10 +70,10 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	hpRegen: counter.unimplemented,
 	hpRegenSelfRed: counter.unimplemented,
 	hpRegenEnemyRed: counter.unimplemented,
-	evade: counter.unimplemented,
-	evadeRed: counter.unimplemented,
-	block: counter.unimplemented,
-	pierceBlock: counter.unimplemented,
+	evade,
+	evadeRed,
+	block,
+	pierceBlock,
 } satisfies Record<CountableStatName, BonusCounter>);
 
 export function countBonuses(item: Item): ItemBonuses | undefined {
