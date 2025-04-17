@@ -41,4 +41,8 @@ export const block = counter.pipe(
 	counter.linear({ a1: evaluate.polynomial([0.15, 0]) }),
 );
 
-export const pierceBlock = counter.constant(1);
+export const pierceBlock = counter.oneOf({
+	40: counter.constant(1),
+	50: counter.constant(1),
+	60: counter.constant(1),
+});
