@@ -1,4 +1,4 @@
-import type { BonusDecomposition, IntegerCount, ItemBonuses, RangeCount } from '#count';
+import type { BonusDecomposition, ItemBonuses } from '#count';
 import * as count from '#count';
 import { type CountableStatName, RarityModifier } from '#item';
 
@@ -10,112 +10,122 @@ const thinSpace = '\u{2009}';
 const nbsp = '\u{00a0}';
 export const bonusDecompositionClassName = 'item-bonus-decomposition';
 
+type Segments = Array<string | Segments>;
 export type StatFormatter = (bonuses: ItemBonuses, translation: string) => string;
 
-export function append(statName: CountableStatName): StatFormatter {
-	return function format(bonuses, translation): string {
+export function singular(statName: CountableStatName): StatFormatter {
+	return function formatSingular(bonuses, translation): string {
 		const decomposition = bonuses.get(statName);
 
 		if (decomposition !== undefined) {
-			return translation.trimEnd() + formatBonusDecomposition(decomposition);
+			const formattedDecomposition = formatSegments(toSegments([decomposition]));
+
+			return withAppendedBonusDecomposition(translation, formattedDecomposition);
 		} else {
 			return translation;
 		}
 	};
 }
 
-function formatBonusDecomposition(decomposition: BonusDecomposition): string {
-	const { bonusCount, native, rarityModifier } = decomposition;
-	let formattedDecomposition = '';
-
-	if (count.isInt(bonusCount)) {
-		formattedDecomposition = formatIntegerCount(bonusCount, native, rarityModifier);
-	} else {
-		formattedDecomposition = formatRangeCount(bonusCount, native, rarityModifier);
-	}
-
-	return `${nbsp}<span class="${bonusDecompositionClassName}">(${formattedDecomposition})</span>`;
+function withAppendedBonusDecomposition(
+	translation: string,
+	formattedDecomposition: string,
+): string {
+	return `${translation.trimEnd()}${nbsp}<span class="${bonusDecompositionClassName}">${formattedDecomposition}</span>`;
 }
 
-function formatIntegerCount(
-	bonusCount: IntegerCount,
-	native: boolean,
-	rarityModifier: RarityModifier,
-): string {
-	let formatted = '';
+function toSegments(decompositions: BonusDecomposition[]): Segments {
+	const segments: Segments = [];
+	let rarityModifier: RarityModifier | undefined;
 
-	if (!native && rarityModifier === RarityModifier.Regular) {
-		return formatNumber(bonusCount.n);
+	// Native bonus should always be first. Since it's never counted more than once, a single
+	// occurrence is enough to add it to the segments.
+	if (decompositions.some((decomposition) => decomposition.native)) {
+		segments.push('n');
 	}
 
-	if (native) {
-		formatted += 'n';
+	for (const decomposition of decompositions) {
+		const { bonusCount } = decomposition;
 
-		if (bonusCount.n !== 0) {
-			formatted += thinSpace;
-			formatted += bonusCount.n >= 0 ? plus : minus;
-			formatted += thinSpace;
-			formatted += formatNumber(Math.abs(bonusCount.n));
+		// A rarity modifier applies to the entire item, so once we find one, it should be cached.
+		if (rarityModifier === undefined && decomposition.rarityModifier !== undefined) {
+			rarityModifier = decomposition.rarityModifier;
 		}
-	} else {
-		formatted += formatNumber(bonusCount.n);
+
+		if (count.isInt(bonusCount)) {
+			if (bonusCount.n !== 0) {
+				segments.push(
+					toSignSegment(bonusCount.n),
+					toNumericSegmentWithoutSign(bonusCount.n),
+				);
+			}
+		} else {
+			segments.push([
+				toNumericSegmentWithSign(bonusCount.lowerBound),
+				twoDotLeader,
+				toNumericSegmentWithSign(bonusCount.upperBound),
+			]);
+		}
 	}
 
-	if (rarityModifier !== RarityModifier.Regular) {
-		formatted += formatRarityModifier(rarityModifier);
+	switch (rarityModifier) {
+		case RarityModifier.Decreased:
+			segments.push(minus, 'r');
+			break;
+		case RarityModifier.Increased:
+			segments.push(plus, 'r');
+			break;
 	}
 
-	return formatted;
+	return segments;
 }
 
-function formatRangeCount(
-	bonusCount: RangeCount,
-	native: boolean,
-	rarityModifier: RarityModifier,
-): string {
-	let formatted = '';
-	let range = '';
+function formatSegments(segments: Segments): string {
+	let formattedSegments = '';
 
-	range += formatNumber(bonusCount.lowerBound);
-	range += thinSpace;
-	range += twoDotLeader;
-	range += thinSpace;
-	range += formatNumber(bonusCount.upperBound);
+	for (const [i, segment] of segments.entries()) {
+		if (Array.isArray(segment)) {
+			formattedSegments += formatSegments(segment);
+		} else {
+			if (segment === plus && formattedSegments.length === 0) {
+				// Do nothing. The plus sign shouldn't be printed at the beginning of a string. For
+				// example, a single non-native bonus should be formatted as '(×1)' not '(+×1)'.
+			} else if (
+				segment === minus &&
+				formattedSegments.length === 0 &&
+				i < segments.length - 1
+			) {
+				// The minus sign must always be printed unless it's the last segment. However, when
+				// it's the first segment, then we don't want it to have leading and trailing space.
+				// By moving it to the next segment it'll be automatically formatted without that.
+				const nextSegment = segments[i + 1]!;
 
-	if (!native && rarityModifier === RarityModifier.Regular) {
-		return range;
+				if (Array.isArray(nextSegment)) {
+					nextSegment.unshift(segment);
+				} else {
+					segments[i + 1] = `${segment}${nextSegment}`;
+				}
+			} else {
+				if (formattedSegments.length > 0) {
+					formattedSegments += thinSpace;
+				}
+
+				formattedSegments += segment;
+			}
+		}
 	}
 
-	if (native) {
-		formatted += 'n';
-		formatted += thinSpace;
-		formatted += plus;
-		formatted += thinSpace;
-	}
-
-	formatted += `(${range})`;
-
-	if (rarityModifier !== RarityModifier.Regular) {
-		formatted += formatRarityModifier(rarityModifier);
-	}
-
-	return formatted;
+	return `(${formattedSegments})`;
 }
 
-function formatRarityModifier(modifier: RarityModifier): string {
-	if (modifier === RarityModifier.Decreased || modifier === RarityModifier.Increased) {
-		const sign = modifier === RarityModifier.Decreased ? minus : plus;
-
-		return `${thinSpace}${sign}${thinSpace}r`;
-	} else {
-		return '';
-	}
+function toNumericSegmentWithSign(n: number): string {
+	return `${toSignSegment(n)}${toNumericSegmentWithoutSign(n)}`;
 }
 
-function formatNumber(n: number): string {
-	if (n >= 0) {
-		return `${cross}${n}`;
-	}
+function toNumericSegmentWithoutSign(n: number): string {
+	return `${cross}${Math.abs(n)}`;
+}
 
-	return `${minus}${cross}${Math.abs(n)}`;
+function toSignSegment(n: number): string {
+	return n >= 0 ? plus : minus;
 }

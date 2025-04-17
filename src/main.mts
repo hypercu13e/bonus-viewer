@@ -5,19 +5,19 @@ import * as format from '#format';
 import { parseItem } from '#item';
 
 const statFormatters = new Map<string, StatFormatter>([
-	['bonus_crit %val%', format.append('crit')],
-	['bonus_lowcrit %val%', format.append('critRed')],
-	['bonus_critval %val%', format.append('physCritPower')],
-	['bonus_of-critmval %val%', format.append('magicCritPower')],
-	['bonus_lowcritallval %val%', format.append('critPowerRed')],
-	['bonus_ds %val%', format.append('strength')],
-	['bonus_dz %val%', format.append('agility')],
-	['bonus_di %val%', format.append('intelligence')],
-	['bonus_da %val%', format.append('baseAttrs')],
-	['bonus_evade %val%', format.append('evade')],
-	['bonus_lowevade %val%', format.append('evadeRed')],
-	['bonus_blok %val%', format.append('block')],
-	['bonus_pierceb %val%', format.append('pierceBlock')],
+	['bonus_crit %val%', format.singular('crit')],
+	['bonus_lowcrit %val%', format.singular('critRed')],
+	['bonus_critval %val%', format.singular('physCritPower')],
+	['bonus_of-critmval %val%', format.singular('magicCritPower')],
+	['bonus_lowcritallval %val%', format.singular('critPowerRed')],
+	['bonus_ds %val%', format.singular('strength')],
+	['bonus_dz %val%', format.singular('agility')],
+	['bonus_di %val%', format.singular('intelligence')],
+	['bonus_da %val%', format.singular('baseAttrs')],
+	['bonus_evade %val%', format.singular('evade')],
+	['bonus_lowevade %val%', format.singular('evadeRed')],
+	['bonus_blok %val%', format.singular('block')],
+	['bonus_pierceb %val%', format.singular('pierceBlock')],
 ]);
 const stylesheet = new CSSStyleSheet();
 let bonusDecompositionColor: string;
