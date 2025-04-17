@@ -147,8 +147,10 @@ export type CountableStatName =
 	| 'baseAttrs'
 	| 'energy'
 	| 'energyDest'
+	| 'energyDestChance'
 	| 'mana'
 	| 'manaDest'
+	| 'manaDestChance'
 	| 'resourcesDestRed'
 	| 'hp'
 	| 'hpBonus'
@@ -211,9 +213,9 @@ const countableStatParsers: Readonly<Record<string, CountableStatParser>> = Obje
 	di: numericStat('intelligence', parseInteger),
 	da: numericStat('baseAttrs', parseInteger),
 	energybon: numericStat('energy', parseInteger),
-	endest: numericStat('energyDest', parseInteger),
+	enfatig: tupleStat('energyDestChance', 'energyDest', parseInteger),
 	manabon: numericStat('mana', parseInteger),
-	manadest: numericStat('manaDest', parseInteger),
+	manafatig: tupleStat('manaDestChance', 'manaDest', parseInteger),
 	resmanaendest: numericStat('resourcesDestRed', parseInteger),
 	hp: numericStat('hp', parseInteger),
 	hpbon: numericStat('hpBonus', parseFloatingPoint),
