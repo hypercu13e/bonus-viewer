@@ -1,5 +1,6 @@
 import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
 import * as log from '#log';
+import { agility, baseAttrs, intelligence, strength } from './count/attrs.mts';
 import type { BonusCount } from './count/count.mts';
 import type { BonusCounter } from './count/counter.mts';
 import * as counter from './count/counter.mts';
@@ -56,10 +57,10 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	physCritPower: critPower,
 	magicCritPower: critPower,
 	critPowerRed,
-	strength: counter.unimplemented,
-	agility: counter.unimplemented,
-	intelligence: counter.unimplemented,
-	baseAttrs: counter.unimplemented,
+	strength,
+	agility,
+	intelligence,
+	baseAttrs,
 	energy: counter.unimplemented,
 	energyDest: counter.unimplemented,
 	mana: counter.unimplemented,
