@@ -152,8 +152,9 @@ export function linear(options: LinearOptions): BonusCounter {
 			}
 		}
 
-		lowerBound = Math.ceil(lowerBound);
-		upperBound = Math.floor(upperBound);
+		// Bounds may end up being `-0` after rounding. Adding `0` gets rid of the minus sign.
+		lowerBound = Math.ceil(lowerBound) + 0;
+		upperBound = Math.floor(upperBound) + 0;
 
 		if (lowerBound === upperBound) {
 			bonusCount = count.int(lowerBound);
