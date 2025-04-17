@@ -1,6 +1,6 @@
 import { CharClass, ItemType } from '#item';
 import type { Coeffs } from './common.mts';
-import { constant, flatMap, linear, native, pipe } from './counter.mts';
+import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
 const nativeEvadeCoeffs: Coeffs = {
@@ -10,35 +10,35 @@ const nativeEvadeCoeffs: Coeffs = {
 	[CharClass.Bth]: 1 / 7,
 };
 
-export const evade = pipe(
-	flatMap((state) => {
+export const evade = counter.pipe(
+	counter.flatMap((state) => {
 		const c = nativeEvadeCoeffs[state.charClasses] ?? 0;
 
-		return native({
+		return counter.native({
 			items: [ItemType.Armor],
 			evaluator: evaluate.polynomial([c, 0]),
 		});
 	}),
-	linear({ a1: evaluate.polynomial([0.1, 0]) }),
+	counter.linear({ a1: evaluate.polynomial([0.1, 0]) }),
 );
 
-export const evadeRed = linear({ a1: evaluate.polynomial([0.1, 0]) });
+export const evadeRed = counter.linear({ a1: evaluate.polynomial([0.1, 0]) });
 
 const nativeBlockCoeffs: Coeffs = {
 	[CharClass.P]: 1.2,
 	[CharClass.Wp]: 1.1,
 };
 
-export const block = pipe(
-	flatMap((state) => {
+export const block = counter.pipe(
+	counter.flatMap((state) => {
 		const c = nativeBlockCoeffs[state.charClasses] ?? 1;
 
-		return native({
+		return counter.native({
 			items: [ItemType.Shield],
 			evaluator: evaluate.polynomial([c, 0]),
 		});
 	}),
-	linear({ a1: evaluate.polynomial([0.15, 0]) }),
+	counter.linear({ a1: evaluate.polynomial([0.15, 0]) }),
 );
 
-export const pierceBlock = constant(1);
+export const pierceBlock = counter.constant(1);
