@@ -3,6 +3,7 @@ import * as log from '#log';
 import type { BonusCount } from './count/count.mts';
 import type { BonusCounter } from './count/counter.mts';
 import * as counter from './count/counter.mts';
+import { crit, critPower, critPowerRed, critRed } from './count/crit.mts';
 import { StatCountState } from './count/state.mts';
 
 export {
@@ -49,11 +50,11 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	counter: counter.unimplemented,
 	speed: counter.unimplemented,
 	slow: counter.unimplemented,
-	crit: counter.unimplemented,
-	critRed: counter.unimplemented,
-	physCritPower: counter.unimplemented,
-	magicCritPower: counter.unimplemented,
-	critPowerRed: counter.unimplemented,
+	crit,
+	critRed,
+	physCritPower: critPower,
+	magicCritPower: critPower,
+	critPowerRed,
 	strength: counter.unimplemented,
 	agility: counter.unimplemented,
 	intelligence: counter.unimplemented,
