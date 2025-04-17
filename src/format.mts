@@ -8,6 +8,7 @@ const cross = '\u{00d7}';
 const twoDotLeader = '\u{2025}';
 const thinSpace = '\u{2009}';
 const nbsp = '\u{00a0}';
+const decompositionError = '(?)';
 export const bonusDecompositionClassName = 'item-bonus-decomposition';
 
 type Segments = Array<string | Segments>;
@@ -20,9 +21,9 @@ export function singular(statName: CountableStatName): StatFormatter {
 		if (decomposition !== undefined) {
 			const formattedDecomposition = formatSegments(toSegments([decomposition]));
 
-			return withAppendedBonusDecomposition(translation, formattedDecomposition);
+			return translationWithBonusDecomposition(translation, formattedDecomposition);
 		} else {
-			return translation;
+			return translationWithBonusDecomposition(translation, decompositionError);
 		}
 	};
 }
@@ -31,23 +32,22 @@ export function multipleSingleLine(...statNames: CountableStatName[]): StatForma
 	return function formatMultipleSingleLine(bonuses, translation): string {
 		const decompositions = statNames.map((statName) => bonuses.get(statName));
 
-		if (
-			decompositions.length === 0 ||
-			decompositions.some((decomposition) => decomposition === undefined)
-		) {
+		if (decompositions.length === 0) {
 			return translation;
+		} else if (decompositions.some((decomposition) => decomposition === undefined)) {
+			return translationWithBonusDecomposition(translation, decompositionError);
 		} else {
 			// SAFETY: Any `undefined` value is handled by the preceding branch.
 			const formattedDecomposition = formatSegments(
 				toSegments(decompositions as BonusDecomposition[]),
 			);
 
-			return withAppendedBonusDecomposition(translation, formattedDecomposition);
+			return translationWithBonusDecomposition(translation, formattedDecomposition);
 		}
 	};
 }
 
-function withAppendedBonusDecomposition(
+function translationWithBonusDecomposition(
 	translation: string,
 	formattedDecomposition: string,
 ): string {
