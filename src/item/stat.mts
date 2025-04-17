@@ -218,7 +218,7 @@ const countableStatParsers: Readonly<Record<string, CountableStatParser>> = Obje
 	manafatig: tupleStat('manaDestChance', 'manaDest', parseInteger),
 	resmanaendest: numericStat('resourcesDestRed', parseInteger),
 	hp: numericStat('hp', parseInteger),
-	hpbon: numericStat('hpBonus', parseFloatingPoint),
+	hpbon: numericStat('hpBonus', createFloatingPointParser(1)),
 	heal: numericStat('hpRegen', parseInteger),
 	adest: numericStat('hpRegenSelfRed', parseInteger),
 	lowheal2turns: numericStat('hpRegenEnemyRed', parseInteger),
@@ -450,12 +450,16 @@ function parseInteger(statValue: string): number {
 	}
 }
 
-function parseFloatingPoint(statValue: string): number {
-	const value = Number.parseFloat(statValue);
+function createFloatingPointParser(precision: number): NumberParser {
+	return function parseFloatingPointToInteger(statValue: string): number {
+		let value = Number.parseFloat(statValue);
 
-	if (Number.isFinite(value)) {
-		return Object.is(value, -0) ? 0 : value;
-	} else {
-		throw RangeError(`${value} is not a valid floating-point number`);
-	}
+		if (Number.isFinite(value)) {
+			value = Math.trunc(value * 10 ** precision);
+
+			return Object.is(value, -0) ? 0 : value;
+		} else {
+			throw RangeError(`${value} is not a valid floating-point number`);
+		}
+	};
 }

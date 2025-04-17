@@ -6,6 +6,7 @@ import type { BonusCounter } from './count/counter.mts';
 import * as counter from './count/counter.mts';
 import { crit, critPower, critPowerRed, critRed } from './count/crit.mts';
 import { block, evade, evadeRed, pierceBlock } from './count/evasion.mts';
+import { hp, hpBonus, hpRegen, hpRegenEnemyRed, hpRegenSelfRed } from './count/hp.mts';
 import {
 	energy,
 	energyDest,
@@ -77,11 +78,11 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	manaDest,
 	manaDestChance,
 	resourcesDestRed,
-	hp: counter.unimplemented,
-	hpBonus: counter.unimplemented,
-	hpRegen: counter.unimplemented,
-	hpRegenSelfRed: counter.unimplemented,
-	hpRegenEnemyRed: counter.unimplemented,
+	hp,
+	hpBonus,
+	hpRegen,
+	hpRegenSelfRed,
+	hpRegenEnemyRed,
 	evade,
 	evadeRed,
 	block,
