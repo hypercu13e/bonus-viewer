@@ -133,7 +133,7 @@ export type CountableStatName =
 	| 'woundDmg'
 	| 'woundChance'
 	| 'pierce'
-	| 'counter'
+	| 'counterattack'
 	| 'speed'
 	| 'slow'
 	| 'crit'
@@ -199,7 +199,7 @@ const countableStatParsers: Readonly<Record<string, CountableStatParser>> = Obje
 	poison: tupleStat('poisonSlow', 'poisonDmg', parseInteger),
 	wound: tupleStat('woundChance', 'woundDmg', parseInteger),
 	pierce: numericStat('pierce', parseInteger),
-	contra: numericStat('counter', parseInteger),
+	contra: numericStat('counterattack', parseInteger),
 	// The game server returns these two as integers, not floats.
 	sa: numericStat('speed', parseInteger),
 	slow: numericStat('slow', parseInteger),

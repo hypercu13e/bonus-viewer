@@ -63,7 +63,7 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	woundDmg: counter.unimplemented,
 	woundChance: counter.unimplemented,
 	pierce: counter.unimplemented,
-	counter: counter.unimplemented,
+	counterattack: counter.unimplemented,
 	speed: counter.unimplemented,
 	slow: counter.unimplemented,
 	crit,
