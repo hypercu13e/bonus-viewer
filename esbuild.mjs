@@ -11,6 +11,7 @@ const OUT_DIR = path.resolve('build');
 const COMMON_BUILD_OPTIONS = {
 	charset: 'utf8',
 	entryPoints: [path.join('src', 'main.mts')],
+	keepNames: true,
 	sourcemap: 'linked',
 	target: 'es2022',
 	tsconfig: 'tsconfig.ts.json',
