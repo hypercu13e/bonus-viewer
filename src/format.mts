@@ -17,15 +17,16 @@ export type StatFormatter = (decomposedItem: DecomposedItem, translation: string
 
 export function singular(statName: CountableStatName): StatFormatter {
 	return function formatSingular(decomposedItem, translation): string {
-		if (!decomposedItem.stats.has(statName)) {
+		const result = decomposedItem.results.get(statName);
+		decomposedItem.results.delete(statName);
+
+		if (result === undefined) {
 			return translation;
-		}
-
-		const decomposedStat = decomposedItem.stats.get(statName);
-		decomposedItem.stats.delete(statName);
-
-		if (decomposedStat !== undefined) {
-			const formattedBonuses = formatBonuses([decomposedStat], decomposedItem.rarityModifier);
+		} else if (result.success) {
+			const formattedBonuses = formatBonuses(
+				[result.decomposedStat],
+				decomposedItem.rarityModifier,
+			);
 
 			return translationWithBonuses(translation, formattedBonuses);
 		} else {
@@ -36,25 +37,30 @@ export function singular(statName: CountableStatName): StatFormatter {
 
 export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
 	return function formatMultipleSingleLine(decomposedItem, translation): string {
-		const decomposedStats = statNames
-			.filter((statName) => decomposedItem.stats.has(statName))
+		const results = statNames
 			.map((statName) => {
-				const decomposedStat = decomposedItem.stats.get(statName);
-				decomposedItem.stats.delete(statName);
+				const result = decomposedItem.results.get(statName);
+				decomposedItem.results.delete(statName);
 
-				return decomposedStat;
-			});
+				return result;
+			})
+			.filter((result) => result !== undefined);
 
-		if (decomposedStats.length === 0) {
+		if (results.length === 0) {
 			return translation;
-		} else if (decomposedStats.some((decomposedStat) => decomposedStat === undefined)) {
-			return translationWithBonuses(translation, decompositionErrorSymbol);
 		} else {
-			const formattedBonuses = formatBonuses(
-				// SAFETY: Any `undefined` value is handled by the preceding branch.
-				decomposedStats as DecomposedStat[],
-				decomposedItem.rarityModifier,
-			);
+			const decomposedStats: DecomposedStat[] = [];
+			let formattedBonuses: string = '';
+
+			for (const result of results) {
+				if (result.success) {
+					decomposedStats.push(result.decomposedStat);
+				} else {
+					return translationWithBonuses(translation, decompositionErrorSymbol);
+				}
+			}
+
+			formattedBonuses = formatBonuses(decomposedStats, decomposedItem.rarityModifier);
 
 			return translationWithBonuses(translation, formattedBonuses);
 		}

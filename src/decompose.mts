@@ -28,16 +28,44 @@ export {
 
 export type DecomposedItem = {
 	readonly rarityModifier: RarityModifier;
-	readonly stats: DecomposedStats;
+	readonly results: Map<CountableStatName, DecompositionResult>;
 };
-
-export type DecomposedStats = Map<CountableStatName, DecomposedStat | undefined>;
 
 export type DecomposedStat = {
 	readonly count: BonusCount;
 	readonly native: boolean;
 	readonly rarityDependent: boolean;
 };
+
+export type DecompositionResult = DecompositionSuccess | DecompositionFailure;
+
+export class DecompositionSuccess {
+	readonly success = true;
+	readonly decomposedStat: DecomposedStat;
+
+	constructor(decomposedStat: DecomposedStat) {
+		this.decomposedStat = decomposedStat;
+
+		Object.defineProperty(this, 'success', { writable: false, configurable: false });
+		Object.defineProperty(this, 'decomposedStat', { writable: false, configurable: false });
+	}
+}
+
+export class DecompositionFailure {
+	readonly success = false;
+	readonly error: DecompositionError;
+
+	constructor(error: DecompositionError) {
+		this.error = error;
+
+		Object.defineProperty(this, 'success', { writable: false, configurable: false });
+		Object.defineProperty(this, 'error', { writable: false, configurable: false });
+	}
+}
+
+export class DecompositionError extends Error {
+	override name = DecompositionError.name;
+}
 
 const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freeze({
 	armor,
@@ -99,7 +127,7 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 		return undefined;
 	}
 
-	const decomposedStats: DecomposedStats = new Map();
+	const results = new Map<CountableStatName, DecompositionResult>();
 	// A rarity modifier applies to the entire item and might influence several different stats.
 	// There's no way of knowing it until the counter of a stat that might be affected by it runs.
 	// However, once it does, we can cache the result because it shouldn't change.
@@ -112,34 +140,44 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 		// SAFETY: `counters` is a frozen object with keys of type `CountableStatName`, so it cannot
 		// contain keys of other type.
 		for (const [statName, statValue] of item.stats.countableStats) {
+			let result: DecompositionResult;
+
 			try {
 				log.groupStart(statName);
 
 				const counter = counters[statName];
-				const finalState = counter(
-					new StatDecompositionState(item, statValue, {
-						detectedRarityModifier: rarityModifier,
-					}),
-				);
+				const initialState = new StatDecompositionState(item, statValue, {
+					detectedRarityModifier: rarityModifier,
+				});
+				const finalState = counter(initialState);
 
 				if (finalState.value === 0) {
 					rarityModifier ??= finalState.currentRarityModifier;
-					decomposedStats.set(statName, {
-						count: finalState.count,
-						native: finalState.native,
-						rarityDependent: finalState.currentRarityModifier !== undefined,
-					});
+					result = new DecompositionSuccess(
+						Object.freeze({
+							count: finalState.count,
+							native: finalState.native,
+							rarityDependent: finalState.currentRarityModifier !== undefined,
+						}),
+					);
 
-					log.debug(`stat '${statName}' decomposed:`, decomposedStats.get(statName));
+					log.debug(`stat '${statName}' decomposed:`, result);
 				} else {
-					throw new Error('stat value was not fully decomposed');
+					result = new DecompositionFailure(
+						new DecompositionError('stat value did not fully decompose'),
+					);
 				}
 			} catch (error) {
+				result = new DecompositionFailure(
+					new DecompositionError('bonus counter failed', { cause: error }),
+				);
+
 				log.error(error);
-				decomposedStats.set(statName, undefined);
 			} finally {
 				log.groupEnd();
 			}
+
+			results.set(statName, result);
 		}
 	} finally {
 		log.groupEnd();
@@ -147,7 +185,7 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 
 	return {
 		rarityModifier: rarityModifier ?? RarityModifier.Regular,
-		stats: decomposedStats,
+		results,
 	};
 }
 
