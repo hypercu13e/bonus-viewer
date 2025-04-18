@@ -18,7 +18,7 @@ import {
 	manaDestChance,
 	resourcesDestRed,
 } from './decompose/resources.mts';
-import { StatCountState } from './decompose/state.mts';
+import { StatDecompositionState } from './decompose/state.mts';
 
 export {
 	IntegerCount,
@@ -26,13 +26,15 @@ export {
 	type BonusCount,
 } from './decompose/count.mts';
 
-export type ItemBonuses = {
+export type DecomposedItem = {
 	readonly rarityModifier: RarityModifier;
-	readonly decompositions: Map<CountableStatName, BonusDecomposition | undefined>;
+	readonly stats: DecomposedStats;
 };
 
-export type BonusDecomposition = {
-	readonly bonusCount: BonusCount;
+export type DecomposedStats = Map<CountableStatName, DecomposedStat | undefined>;
+
+export type DecomposedStat = {
+	readonly count: BonusCount;
 	readonly native: boolean;
 	readonly rarityDependent: boolean;
 };
@@ -92,12 +94,12 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	pierceBlock,
 } satisfies Record<CountableStatName, BonusCounter>);
 
-export function countBonuses(item: Item): ItemBonuses | undefined {
-	if (!isItemCountable(item)) {
+export function decomposeItem(item: Item): DecomposedItem | undefined {
+	if (!isItemDecomposable(item)) {
 		return undefined;
 	}
 
-	const decompositions = new Map<CountableStatName, BonusDecomposition | undefined>();
+	const decomposedStats: DecomposedStats = new Map();
 	// A rarity modifier applies to the entire item and might influence several different stats.
 	// There's no way of knowing it until the counter of a stat that might be affected by it runs.
 	// However, once it does, we can cache the result because it shouldn't change.
@@ -115,24 +117,26 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 
 				const counter = counters[statName];
 				const finalState = counter(
-					new StatCountState(item, statValue, { detectedRarityModifier: rarityModifier }),
+					new StatDecompositionState(item, statValue, {
+						detectedRarityModifier: rarityModifier,
+					}),
 				);
 
 				if (finalState.value === 0) {
 					rarityModifier ??= finalState.currentRarityModifier;
-					decompositions.set(statName, {
-						bonusCount: finalState.count,
+					decomposedStats.set(statName, {
+						count: finalState.count,
 						native: finalState.native,
 						rarityDependent: finalState.currentRarityModifier !== undefined,
 					});
 
-					log.debug(`stat '${statName}' decomposed:`, decompositions.get(statName));
+					log.debug(`stat '${statName}' decomposed:`, decomposedStats.get(statName));
 				} else {
 					throw new Error('stat value was not fully decomposed');
 				}
 			} catch (error) {
 				log.error(error);
-				decompositions.set(statName, undefined);
+				decomposedStats.set(statName, undefined);
 			} finally {
 				log.groupEnd();
 			}
@@ -143,11 +147,11 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 
 	return {
 		rarityModifier: rarityModifier ?? RarityModifier.Regular,
-		decompositions,
+		stats: decomposedStats,
 	};
 }
 
-function isItemCountable(item: Item): boolean {
+function isItemDecomposable(item: Item): boolean {
 	return (
 		(ItemType.Unknown < item.type && item.type <= ItemType.Shield) ||
 		item.type === ItemType.Arrows ||

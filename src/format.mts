@@ -1,4 +1,4 @@
-import type { BonusDecomposition, ItemBonuses } from '#decompose';
+import type { DecomposedItem, DecomposedStat } from '#decompose';
 import { type CountableStatName, RarityModifier } from '#item';
 
 const plus = '\u{002b}';
@@ -9,117 +9,112 @@ const thinSpace = '\u{2009}';
 const nbsp = '\u{00a0}';
 const nativeBonusSymbol = 'n';
 const rarityModifierSymbol = 'r';
-const decompositionError = '(?)';
-export const bonusDecompositionClassName = 'item-bonus-decomposition';
+const decompositionErrorSymbol = '(?)';
+export const bonusesClassName = 'item-stat-bonuses';
 
 type Segments = Array<string | Segments>;
-export type StatFormatter = (bonuses: ItemBonuses, translation: string) => string;
+export type StatFormatter = (decomposedItem: DecomposedItem, translation: string) => string;
 
 export function singular(statName: CountableStatName): StatFormatter {
-	return function formatSingular(bonuses, translation): string {
-		if (!bonuses.decompositions.has(statName)) {
+	return function formatSingular(decomposedItem, translation): string {
+		if (!decomposedItem.stats.has(statName)) {
 			return translation;
 		}
 
-		const decomposition = bonuses.decompositions.get(statName);
-		bonuses.decompositions.delete(statName);
+		const decomposedStat = decomposedItem.stats.get(statName);
+		decomposedItem.stats.delete(statName);
 
-		if (decomposition !== undefined) {
-			const formattedDecomposition = formatSegments(
-				toSegments([decomposition], bonuses.rarityModifier),
-			);
+		if (decomposedStat !== undefined) {
+			const formattedBonuses = formatBonuses([decomposedStat], decomposedItem.rarityModifier);
 
-			return translationWithBonusDecomposition(translation, formattedDecomposition);
+			return translationWithBonuses(translation, formattedBonuses);
 		} else {
-			return translationWithBonusDecomposition(translation, decompositionError);
+			return translationWithBonuses(translation, decompositionErrorSymbol);
 		}
 	};
 }
 
 export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
-	return function formatMultipleSingleLine(bonuses, translation): string {
-		const decompositions = statNames
-			.filter((statName) => bonuses.decompositions.has(statName))
+	return function formatMultipleSingleLine(decomposedItem, translation): string {
+		const decomposedStats = statNames
+			.filter((statName) => decomposedItem.stats.has(statName))
 			.map((statName) => {
-				const decomposition = bonuses.decompositions.get(statName);
-				bonuses.decompositions.delete(statName);
+				const decomposedStat = decomposedItem.stats.get(statName);
+				decomposedItem.stats.delete(statName);
 
-				return decomposition;
+				return decomposedStat;
 			});
 
-		if (decompositions.length === 0) {
+		if (decomposedStats.length === 0) {
 			return translation;
-		} else if (decompositions.some((decomposition) => decomposition === undefined)) {
-			return translationWithBonusDecomposition(translation, decompositionError);
+		} else if (decomposedStats.some((decomposedStat) => decomposedStat === undefined)) {
+			return translationWithBonuses(translation, decompositionErrorSymbol);
 		} else {
-			// SAFETY: Any `undefined` value is handled by the preceding branch.
-			const formattedDecomposition = formatSegments(
-				toSegments(decompositions as BonusDecomposition[], bonuses.rarityModifier),
+			const formattedBonuses = formatBonuses(
+				// SAFETY: Any `undefined` value is handled by the preceding branch.
+				decomposedStats as DecomposedStat[],
+				decomposedItem.rarityModifier,
 			);
 
-			return translationWithBonusDecomposition(translation, formattedDecomposition);
+			return translationWithBonuses(translation, formattedBonuses);
 		}
 	};
 }
 
-function translationWithBonusDecomposition(
-	translation: string,
-	formattedDecomposition: string,
-): string {
-	return `${translation.trimEnd()}${nbsp}<span class="${bonusDecompositionClassName}">${formattedDecomposition}</span>`;
+function translationWithBonuses(translation: string, formattedBonuses: string): string {
+	return `${translation.trimEnd()}${nbsp}<span class="${bonusesClassName}">${formattedBonuses}</span>`;
 }
 
-function toSegments(
-	decompositions: BonusDecomposition[],
-	rarityModifier: RarityModifier,
-): Segments {
+function formatBonuses(decomposedStats: DecomposedStat[], rarityModifier: RarityModifier): string {
+	const segments = toSegments(decomposedStats, rarityModifier);
+
+	return formatSegments(segments);
+}
+
+function toSegments(decomposedStats: DecomposedStat[], rarityModifier: RarityModifier): Segments {
 	const segments: Segments = [];
-	// When all decompositions depend on item's rarity, then it should be presented only once at the
-	// end. However, there might be cases where at least one stat depends on it and at least one
-	// another doesn't, and then each stat must have its individual dependency displayed separately.
-	const allDecompositionsDependOnRarity = decompositions.every(
-		(decomposition) => decomposition.rarityDependent,
+	// When all stats depend on item's rarity, then it should be presented only once at the end.
+	// However, there might be cases where at least one stat depends on it and another one doesn't,
+	// and then each stat must have its individual dependency displayed separately.
+	const allStatsDependOnRarity = decomposedStats.every(
+		(decomposedStat) => decomposedStat.rarityDependent,
 	);
 
 	// Native bonus should always be first. Since it's never counted more than once, a single
 	// occurrence is enough to add it to the segments.
-	if (decompositions.some((decomposition) => decomposition.native)) {
+	if (decomposedStats.some((decomposedStat) => decomposedStat.native)) {
 		segments.push(nativeBonusSymbol);
 	}
 
-	for (const decomposition of decompositions) {
-		const { bonusCount, rarityDependent } = decomposition;
-		const withRarityModifier =
+	for (const { count, rarityDependent } of decomposedStats) {
+		const includeRarityModifier =
 			rarityDependent &&
-			!allDecompositionsDependOnRarity &&
+			!allStatsDependOnRarity &&
 			isSignificantRarityModifier(rarityModifier);
 
-		if (bonusCount.type === 'integer') {
+		if (count.type === 'integer') {
 			let intSegments = segments;
 
-			if (withRarityModifier) {
+			if (includeRarityModifier) {
 				intSegments = [];
 			}
 
-			if (bonusCount.n !== 0) {
-				intSegments.push(
-					toSignSegment(bonusCount.n),
-					toNumericSegmentWithoutSign(bonusCount.n),
-				);
+			if (count.n !== 0) {
+				intSegments.push(toSignSegment(count.n), toNumericSegmentWithoutSign(count.n));
 			}
 
-			if (withRarityModifier) {
+			if (includeRarityModifier) {
 				intSegments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
 				segments.push(intSegments);
 			}
 		} else {
 			const rangeSegments = [
-				toNumericSegmentWithSign(bonusCount.lowerBound),
+				toNumericSegmentWithSign(count.lowerBound),
 				twoDotLeader,
-				toNumericSegmentWithSign(bonusCount.upperBound),
+				toNumericSegmentWithSign(count.upperBound),
 			];
 
-			if (withRarityModifier) {
+			if (includeRarityModifier) {
 				rangeSegments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
 			}
 
@@ -127,7 +122,7 @@ function toSegments(
 		}
 	}
 
-	if (allDecompositionsDependOnRarity && isSignificantRarityModifier(rarityModifier)) {
+	if (allStatsDependOnRarity && isSignificantRarityModifier(rarityModifier)) {
 		segments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
 	}
 
@@ -143,7 +138,7 @@ function formatSegments(segments: Segments): string {
 		} else {
 			if (segment === plus && formattedSegments.length === 0) {
 				// Do nothing. The plus sign shouldn't be printed at the beginning of a string. For
-				// example, a single non-native bonus should be formatted as '(×1)' not '(+×1)'.
+				// example, a bonus count of 1 should be formatted as '(×1)' not '(+×1)'.
 			} else if (
 				segment === minus &&
 				formattedSegments.length === 0 &&

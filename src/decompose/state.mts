@@ -2,7 +2,7 @@ import * as external from '#external';
 import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifier } from '#item';
 import { type BonusCount, IntegerCount } from './count.mts';
 
-export type StatCountStateOptions = {
+export type StatDecompositionStateOptions = {
 	value?: number | undefined;
 	count?: BonusCount | undefined;
 	native?: boolean | undefined;
@@ -10,7 +10,7 @@ export type StatCountStateOptions = {
 	detectedRarityModifier?: RarityModifier | undefined;
 };
 
-export class StatCountState {
+export class StatDecompositionState {
 	#item: Item;
 	#value: number;
 	#statValue: number;
@@ -75,7 +75,7 @@ export class StatCountState {
 		return this.#native;
 	}
 
-	constructor(item: Item, statValue: number, options?: StatCountStateOptions) {
+	constructor(item: Item, statValue: number, options?: StatDecompositionStateOptions) {
 		this.#item = item;
 		this.#value = options?.value ?? statValue;
 		this.#statValue = statValue;
@@ -89,8 +89,8 @@ export class StatCountState {
 		return this.#item.stats.countableStats.has(name);
 	}
 
-	withRarityModifier(modifier: RarityModifier): StatCountState {
-		return new StatCountState(this.#item, this.#statValue, {
+	withRarityModifier(modifier: RarityModifier): StatDecompositionState {
+		return new StatDecompositionState(this.#item, this.#statValue, {
 			value: this.#value,
 			count: this.#count,
 			native: this.#native,
@@ -99,8 +99,8 @@ export class StatCountState {
 		});
 	}
 
-	withNativeBonus(value: number): StatCountState {
-		return new StatCountState(this.#item, this.#statValue, {
+	withNativeBonus(value: number): StatDecompositionState {
+		return new StatDecompositionState(this.#item, this.#statValue, {
 			value: this.#value - value,
 			count: this.#count,
 			native: true,
@@ -109,8 +109,8 @@ export class StatCountState {
 		});
 	}
 
-	withBonusCount(value: number, count: BonusCount): StatCountState {
-		return new StatCountState(this.#item, this.#statValue, {
+	withBonusCount(value: number, count: BonusCount): StatDecompositionState {
+		return new StatDecompositionState(this.#item, this.#statValue, {
 			value: this.#value - value,
 			count,
 			native: this.#native,

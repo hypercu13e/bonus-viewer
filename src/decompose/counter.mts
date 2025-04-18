@@ -2,18 +2,18 @@ import { type ItemType, RarityModifier } from '#item';
 import { type BonusCount, BonusCountError, IntegerCount, RangeCount } from './count.mts';
 import type { Evaluator } from './evaluate.mts';
 import * as evaluate from './evaluate.mts';
-import type { StatCountState } from './state.mts';
+import type { StatDecompositionState } from './state.mts';
 
-export type BonusCounter = (state: StatCountState) => StatCountState;
+export type BonusCounter = (state: StatDecompositionState) => StatDecompositionState;
 
 export function pipe(...counters: BonusCounter[]): BonusCounter {
-	return function countPipe(state): StatCountState {
+	return function countPipe(state): StatDecompositionState {
 		return counters.reduce((state, counter) => counter(state), state);
 	};
 }
 
-export function flatMap(fn: (state: StatCountState) => BonusCounter): BonusCounter {
-	return function countFlatMap(state): StatCountState {
+export function flatMap(fn: (state: StatDecompositionState) => BonusCounter): BonusCounter {
+	return function countFlatMap(state): StatDecompositionState {
 		const counter = fn(state);
 
 		return counter(state);
@@ -21,7 +21,7 @@ export function flatMap(fn: (state: StatCountState) => BonusCounter): BonusCount
 }
 
 export function oneOf(variants: Record<number, BonusCounter>): BonusCounter {
-	return function countOneOf(state): StatCountState {
+	return function countOneOf(state): StatDecompositionState {
 		const counter = variants[state.value];
 
 		if (counter !== undefined) {
@@ -41,7 +41,7 @@ export function native(options: NativeOptions): BonusCounter {
 	const { items, evaluator: evaluate } = options;
 	const itemTypes: ReadonlySet<ItemType> = new Set(items);
 
-	return function countNative(state): StatCountState {
+	return function countNative(state): StatDecompositionState {
 		if (itemTypes.has(state.itemType)) {
 			const value = evaluate({
 				// Native bonuses can be treated as regular bonuses with `n` equal to 1, so `x` can
@@ -65,11 +65,11 @@ const rarityModifiers: readonly RarityModifier[] = [
 
 export function rarityDependent(counter: BonusCounter): BonusCounter {
 	type ClosestResult = {
-		readonly state: StatCountState;
+		readonly state: StatDecompositionState;
 		readonly rarityModifier: RarityModifier;
 	};
 
-	return function countRarityDependentStat(initialState): StatCountState {
+	return function countRarityDependentStat(initialState): StatDecompositionState {
 		// If we already know the modifier, then short-circuit counting.
 		if (initialState.detectedRarityModifier !== undefined) {
 			return counter(initialState.withRarityModifier(initialState.detectedRarityModifier));
@@ -79,7 +79,7 @@ export function rarityDependent(counter: BonusCounter): BonusCounter {
 		let smallestDistance = Number.POSITIVE_INFINITY;
 
 		for (const rarityModifier of rarityModifiers) {
-			let state: StatCountState;
+			let state: StatDecompositionState;
 			let currentDistance: number;
 
 			try {
@@ -90,7 +90,7 @@ export function rarityDependent(counter: BonusCounter): BonusCounter {
 				} else {
 					throw new BonusCountError(
 						rarityDependent.name,
-						`bonus decomposition failed for rarity modifier ${rarityModifier}`,
+						`decomposition failed for rarity modifier ${rarityModifier}`,
 						{ cause: error },
 					);
 				}
@@ -132,7 +132,7 @@ export function linear(options: LinearOptions): BonusCounter {
 	} = options;
 	const extendedA0 = extendDomainToZero ? a0 : 0;
 
-	return function countLinear(state): StatCountState {
+	return function countLinear(state): StatDecompositionState {
 		// TODO: This works out nicely... on paper. Since this operates on floats, it'd be nice to
 		// actually verify all of this using error analysis.
 		//
@@ -266,7 +266,7 @@ export function linear(options: LinearOptions): BonusCounter {
 }
 
 export function constant(n: number): BonusCounter {
-	return function countConstant(state): StatCountState {
+	return function countConstant(state): StatDecompositionState {
 		return state.withBonusCount(state.value, new IntegerCount(n));
 	};
 }

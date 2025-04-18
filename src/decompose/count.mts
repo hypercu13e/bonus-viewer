@@ -40,7 +40,7 @@ export class RangeCount {
 }
 
 export class BonusCountError extends Error {
-	override name = 'CountError';
+	override name = BonusCountError.name;
 	counterName: string;
 
 	constructor(

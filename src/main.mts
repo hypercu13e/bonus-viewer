@@ -1,8 +1,8 @@
-import { type ItemBonuses, countBonuses } from '#decompose';
+import { type DecomposedItem, decomposeItem } from '#decompose';
 import { type ItemTooltipGetter, type TranslationGetter, newInterfaceEnabled } from '#external';
-import { type StatFormatter, bonusDecompositionClassName } from '#format';
+import { type StatFormatter, bonusesClassName } from '#format';
 import * as format from '#format';
-import { parseItem } from '#item';
+import { parseItemData } from '#item';
 
 const statFormatters = new Map<string, StatFormatter>([
 	['item_ac %val%', format.singular('armor')],
@@ -36,7 +36,7 @@ const statFormatters = new Map<string, StatFormatter>([
 	['bonus_pierceb %val%', format.singular('pierceBlock')],
 ]);
 const stylesheet = new CSSStyleSheet();
-let bonusDecompositionColor: string;
+let bonusesColor: string;
 // Well… unless the game client starts doing some asynchronous work during item tooltip generation,
 // this should be fine. If it fails, then we can start worrying and change the translation getter so
 // that it's dynamically patched in the tooltip getter.
@@ -46,44 +46,44 @@ let bonusDecompositionColor: string;
 //
 // Garmory folks, would you mind refactoring that magnificent piece of code you call a tooltip
 // parser? 🥺
-let currentBonuses: ItemBonuses | undefined;
+let decomposedItem: DecomposedItem | undefined;
 
 if (newInterfaceEnabled) {
 	const getTip = globalThis.MargoTipsParser.getTip.bind(globalThis.MargoTipsParser);
-	bonusDecompositionColor = '#867e79';
+	bonusesColor = '#867e79';
 
 	globalThis.MargoTipsParser.getTip = createAugmentedItemTooltipGetter(getTip);
 	globalThis._t2 = createAugmentedTranslationGetter(globalThis._t2);
 } else {
-	bonusDecompositionColor = '#b0a6a5';
+	bonusesColor = '#b0a6a5';
 	globalThis.itemTip = createAugmentedItemTooltipGetter(globalThis.itemTip);
 	globalThis._t = createAugmentedTranslationGetter(globalThis._t);
 }
 
-stylesheet.insertRule(`.${bonusDecompositionClassName} { color: ${bonusDecompositionColor}; }`);
+stylesheet.insertRule(`.${bonusesClassName} { color: ${bonusesColor}; }`);
 document.adoptedStyleSheets = [...document.adoptedStyleSheets, stylesheet];
 
 function createAugmentedItemTooltipGetter(getTip: ItemTooltipGetter): ItemTooltipGetter {
 	return function augmentItemTooltipWithBonuses(itemData, ...args): string {
-		const item = parseItem(itemData);
-		currentBonuses = countBonuses(item);
+		const item = parseItemData(itemData);
+		decomposedItem = decomposeItem(item);
 
 		try {
 			return getTip(itemData, ...args);
 		} finally {
-			currentBonuses = undefined;
+			decomposedItem = undefined;
 		}
 	};
 }
 
 function createAugmentedTranslationGetter(translate: TranslationGetter): TranslationGetter {
-	return function augmentStatTranslationWithBonusDecomposition(key, ...args): string {
+	return function augmentStatTranslationWithBonuses(key, ...args): string {
 		const translation = translate(key, ...args);
 
-		if (currentBonuses !== undefined) {
+		if (decomposedItem !== undefined) {
 			const formatter = statFormatters.get(key);
 
-			return formatter?.(currentBonuses, translation) ?? translation;
+			return formatter?.(decomposedItem, translation) ?? translation;
 		} else {
 			return translation;
 		}

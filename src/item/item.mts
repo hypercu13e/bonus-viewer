@@ -54,7 +54,7 @@ export type Item = {
 	readonly stats: Stats;
 };
 
-export function parseItem(data: ItemData): Item {
+export function parseItemData(data: ItemData): Item {
 	let type: ItemType;
 
 	// The reason why the comparison with `ItemType.Unknown` uses `>` instead of `>=` is that `-0`
