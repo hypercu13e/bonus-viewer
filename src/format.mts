@@ -8,6 +8,8 @@ const cross = '\u{00d7}';
 const twoDotLeader = '\u{2025}';
 const thinSpace = '\u{2009}';
 const nbsp = '\u{00a0}';
+const nativeBonusSymbol = 'n';
+const rarityModifierSymbol = 'r';
 const decompositionError = '(?)';
 export const bonusDecompositionClassName = 'item-bonus-decomposition';
 
@@ -16,10 +18,12 @@ export type StatFormatter = (bonuses: ItemBonuses, translation: string) => strin
 
 export function singular(statName: CountableStatName): StatFormatter {
 	return function formatSingular(bonuses, translation): string {
-		const decomposition = bonuses.get(statName);
+		const decomposition = bonuses.decompositions.get(statName);
 
 		if (decomposition !== undefined) {
-			const formattedDecomposition = formatSegments(toSegments([decomposition]));
+			const formattedDecomposition = formatSegments(
+				toSegments([decomposition], bonuses.rarityModifier),
+			);
 
 			return translationWithBonusDecomposition(translation, formattedDecomposition);
 		} else {
@@ -30,7 +34,7 @@ export function singular(statName: CountableStatName): StatFormatter {
 
 export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
 	return function formatMultipleSingleLine(bonuses, translation): string {
-		const decompositions = statNames.map((statName) => bonuses.get(statName));
+		const decompositions = statNames.map((statName) => bonuses.decompositions.get(statName));
 
 		if (decompositions.length === 0) {
 			return translation;
@@ -39,7 +43,7 @@ export function multipleSingleLine(...statNames: CountableStatName[]): StatForma
 		} else {
 			// SAFETY: Any `undefined` value is handled by the preceding branch.
 			const formattedDecomposition = formatSegments(
-				toSegments(decompositions as BonusDecomposition[]),
+				toSegments(decompositions as BonusDecomposition[], bonuses.rarityModifier),
 			);
 
 			return translationWithBonusDecomposition(translation, formattedDecomposition);
@@ -54,47 +58,66 @@ function translationWithBonusDecomposition(
 	return `${translation.trimEnd()}${nbsp}<span class="${bonusDecompositionClassName}">${formattedDecomposition}</span>`;
 }
 
-function toSegments(decompositions: BonusDecomposition[]): Segments {
+function toSegments(
+	decompositions: BonusDecomposition[],
+	rarityModifier: RarityModifier,
+): Segments {
 	const segments: Segments = [];
-	let rarityModifier: RarityModifier | undefined;
+	// When all decompositions depend on item's rarity, then it should be presented only once at the
+	// end. However, there might be cases where at least one stat depends on it and at least one
+	// another doesn't, and then each stat must have its individual dependency displayed separately.
+	const allDecompositionsDependOnRarity = decompositions.every(
+		(decomposition) => decomposition.rarityDependent,
+	);
 
 	// Native bonus should always be first. Since it's never counted more than once, a single
 	// occurrence is enough to add it to the segments.
 	if (decompositions.some((decomposition) => decomposition.native)) {
-		segments.push('n');
+		segments.push(nativeBonusSymbol);
 	}
 
 	for (const decomposition of decompositions) {
-		const { bonusCount } = decomposition;
-
-		// A rarity modifier applies to the entire item, so once we find one, it should be cached.
-		if (rarityModifier === undefined && decomposition.rarityModifier !== undefined) {
-			rarityModifier = decomposition.rarityModifier;
-		}
+		const { bonusCount, rarityDependent } = decomposition;
+		const withRarityModifier =
+			rarityDependent &&
+			!allDecompositionsDependOnRarity &&
+			isSignificantRarityModifier(rarityModifier);
 
 		if (count.isInt(bonusCount)) {
+			let intSegments = segments;
+
+			if (withRarityModifier) {
+				intSegments = [];
+			}
+
 			if (bonusCount.n !== 0) {
-				segments.push(
+				intSegments.push(
 					toSignSegment(bonusCount.n),
 					toNumericSegmentWithoutSign(bonusCount.n),
 				);
 			}
+
+			if (withRarityModifier) {
+				intSegments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
+				segments.push(intSegments);
+			}
 		} else {
-			segments.push([
+			const rangeSegments = [
 				toNumericSegmentWithSign(bonusCount.lowerBound),
 				twoDotLeader,
 				toNumericSegmentWithSign(bonusCount.upperBound),
-			]);
+			];
+
+			if (withRarityModifier) {
+				rangeSegments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
+			}
+
+			segments.push(rangeSegments);
 		}
 	}
 
-	switch (rarityModifier) {
-		case RarityModifier.Decreased:
-			segments.push(minus, 'r');
-			break;
-		case RarityModifier.Increased:
-			segments.push(plus, 'r');
-			break;
+	if (allDecompositionsDependOnRarity && isSignificantRarityModifier(rarityModifier)) {
+		segments.push(toSignSegment(rarityModifier), rarityModifierSymbol);
 	}
 
 	return segments;
@@ -148,4 +171,12 @@ function toNumericSegmentWithoutSign(n: number): string {
 
 function toSignSegment(n: number): string {
 	return n >= 0 ? plus : minus;
+}
+
+type SignificantRarityModifier = typeof RarityModifier.Decreased | typeof RarityModifier.Increased;
+
+function isSignificantRarityModifier(
+	modifier: RarityModifier | undefined,
+): modifier is SignificantRarityModifier {
+	return modifier === RarityModifier.Decreased || modifier === RarityModifier.Increased;
 }

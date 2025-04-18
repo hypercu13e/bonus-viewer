@@ -5,6 +5,9 @@ import * as format from '#format';
 import { parseItem } from '#item';
 
 const statFormatters = new Map<string, StatFormatter>([
+	['item_ac %val%', format.singular('armor')],
+	['bonus_acdmg %val%', format.singular('armorDest')],
+	['bonus_resacdmg %val%', format.singular('armorDestRed')],
 	['bonus_crit %val%', format.singular('crit')],
 	['bonus_lowcrit %val%', format.singular('critRed')],
 	['bonus_critval %val%', format.singular('physCritPower')],

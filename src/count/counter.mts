@@ -1,4 +1,4 @@
-import type { ItemType } from '#item';
+import { type ItemType, RarityModifier } from '#item';
 import { type BonusCount, BonusCountError } from './count.mts';
 import * as count from './count.mts';
 import type { Evaluator } from './evaluate.mts';
@@ -54,6 +54,65 @@ export function native(options: NativeOptions): BonusCounter {
 			return state.withNativeBonus(value);
 		} else {
 			return state;
+		}
+	};
+}
+
+const rarityModifiers: readonly RarityModifier[] = [
+	RarityModifier.Regular,
+	RarityModifier.Decreased,
+	RarityModifier.Increased,
+];
+
+export function rarityDependent(counter: BonusCounter): BonusCounter {
+	type ClosestResult = {
+		readonly state: StatCountState;
+		readonly rarityModifier: RarityModifier;
+	};
+
+	return function countRarityDependentStat(initialState): StatCountState {
+		// If we already know the modifier, then short-circuit counting.
+		if (initialState.detectedRarityModifier !== undefined) {
+			return counter(initialState.withRarityModifier(initialState.detectedRarityModifier));
+		}
+
+		let closest: ClosestResult | undefined;
+		let smallestDistance = Number.POSITIVE_INFINITY;
+
+		for (const rarityModifier of rarityModifiers) {
+			let state: StatCountState;
+			let currentDistance: number;
+
+			try {
+				state = counter(initialState.withRarityModifier(rarityModifier));
+			} catch (error) {
+				if (error instanceof BonusCountError) {
+					continue;
+				} else {
+					throw new BonusCountError(
+						rarityDependent.name,
+						`bonus decomposition failed for rarity modifier ${rarityModifier}`,
+						{ cause: error },
+					);
+				}
+			}
+
+			if (count.isInt(state.count)) {
+				currentDistance = Math.abs(state.count.n);
+			} else {
+				currentDistance = Math.abs(state.count.upperBound + state.count.lowerBound) / 2;
+			}
+
+			if (currentDistance < smallestDistance) {
+				closest = { state, rarityModifier };
+				smallestDistance = currentDistance;
+			}
+		}
+
+		if (closest !== undefined) {
+			return closest.state;
+		} else {
+			throw new BonusCountError(rarityDependent.name, 'no fitting rarity modifier was found');
 		}
 	};
 }

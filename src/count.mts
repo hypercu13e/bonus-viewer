@@ -1,5 +1,6 @@
 import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
 import * as log from '#log';
+import { armor, armorDest, armorDestRed } from './count/armor.mts';
 import { agility, baseAttrs, intelligence, strength } from './count/attrs.mts';
 import type { BonusCount } from './count/count.mts';
 import type { BonusCounter } from './count/counter.mts';
@@ -26,18 +27,21 @@ export {
 	isRange,
 } from './count/count.mts';
 
-export type ItemBonuses = Map<CountableStatName, BonusDecomposition | undefined>;
+export type ItemBonuses = {
+	readonly rarityModifier: RarityModifier;
+	readonly decompositions: ReadonlyMap<CountableStatName, BonusDecomposition | undefined>;
+};
 
 export type BonusDecomposition = {
 	readonly bonusCount: BonusCount;
 	readonly native: boolean;
-	readonly rarityModifier: RarityModifier;
+	readonly rarityDependent: boolean;
 };
 
 const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freeze({
-	armor: counter.unimplemented,
-	armorDest: counter.unimplemented,
-	armorDestRed: counter.unimplemented,
+	armor,
+	armorDest,
+	armorDestRed,
 	physAbs: counter.unimplemented,
 	magicAbs: counter.unimplemented,
 	absDest: counter.unimplemented,
@@ -94,14 +98,13 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 		return undefined;
 	}
 
-	const bonuses: ItemBonuses = new Map();
+	const decompositions = new Map<CountableStatName, BonusDecomposition | undefined>();
+	// A rarity modifier applies to the entire item and might influence several different stats.
+	// There's no way of knowing it until the counter of a stat that might be affected by it runs.
+	// However, once it does, we can cache the result because it shouldn't change.
+	let rarityModifier: RarityModifier | undefined;
 
 	try {
-		// A rarity modifier applies to the entire item and might influence several different stats.
-		// There's no way of knowing it until the counter of a stat that might be affected by it
-		// runs. However, once it does, we can cache the result because it shouldn't change.
-		let rarityModifier: RarityModifier | undefined;
-
 		log.groupStart(item.name);
 		log.debug(item);
 
@@ -112,23 +115,25 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 				log.groupStart(statName);
 
 				const counter = counters[statName];
-				const finalState = counter(new StatCountState(item, statValue, { rarityModifier }));
+				const finalState = counter(
+					new StatCountState(item, statValue, { detectedRarityModifier: rarityModifier }),
+				);
 
 				if (finalState.value === 0) {
-					rarityModifier ??= finalState.rarityModifier;
-					bonuses.set(statName, {
+					rarityModifier ??= finalState.currentRarityModifier;
+					decompositions.set(statName, {
 						bonusCount: finalState.count,
 						native: finalState.native,
-						rarityModifier: rarityModifier ?? RarityModifier.Regular,
+						rarityDependent: finalState.currentRarityModifier !== undefined,
 					});
 
-					log.debug(`stat '${statName}' decomposed:`, bonuses.get(statName));
+					log.debug(`stat '${statName}' decomposed:`, decompositions.get(statName));
 				} else {
 					throw new Error('stat value was not fully decomposed');
 				}
 			} catch (error) {
 				log.error(error);
-				bonuses.set(statName, undefined);
+				decompositions.set(statName, undefined);
 			} finally {
 				log.groupEnd();
 			}
@@ -137,7 +142,10 @@ export function countBonuses(item: Item): ItemBonuses | undefined {
 		log.groupEnd();
 	}
 
-	return bonuses;
+	return {
+		rarityModifier: rarityModifier ?? RarityModifier.Regular,
+		decompositions,
+	};
 }
 
 function isItemCountable(item: Item): boolean {

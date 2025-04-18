@@ -7,7 +7,8 @@ export type StatCountStateOptions = {
 	value?: number | undefined;
 	count?: BonusCount | undefined;
 	native?: boolean | undefined;
-	rarityModifier?: RarityModifier | undefined;
+	currentRarityModifier?: RarityModifier | undefined;
+	detectedRarityModifier?: RarityModifier | undefined;
 };
 
 export class StatCountState {
@@ -16,18 +17,23 @@ export class StatCountState {
 	#statValue: number;
 	#count: BonusCount;
 	#native: boolean;
-	#rarityModifier: RarityModifier | undefined;
+	#currentRarityModifier: RarityModifier | undefined;
+	#detectedRarityModifier: RarityModifier | undefined;
 
 	get itemType(): ItemType {
 		return this.#item.type;
 	}
 
 	get rarity(): Rarity {
-		return this.#item.stats.rarity + (this.#rarityModifier ?? RarityModifier.Regular);
+		return this.#item.stats.rarity + (this.#currentRarityModifier ?? RarityModifier.Regular);
 	}
 
-	get rarityModifier(): RarityModifier | undefined {
-		return this.#rarityModifier;
+	get currentRarityModifier(): RarityModifier | undefined {
+		return this.#currentRarityModifier;
+	}
+
+	get detectedRarityModifier(): RarityModifier | undefined {
+		return this.#detectedRarityModifier;
 	}
 
 	get lvl(): number {
@@ -76,7 +82,8 @@ export class StatCountState {
 		this.#statValue = statValue;
 		this.#count = options?.count ?? count.int(0);
 		this.#native = options?.native ?? false;
-		this.#rarityModifier = options?.rarityModifier;
+		this.#currentRarityModifier = options?.currentRarityModifier;
+		this.#detectedRarityModifier = options?.detectedRarityModifier;
 	}
 
 	hasStat(name: CountableStatName): boolean {
@@ -88,7 +95,8 @@ export class StatCountState {
 			value: this.#value,
 			count: this.#count,
 			native: this.#native,
-			rarityModifier: modifier,
+			currentRarityModifier: modifier,
+			detectedRarityModifier: this.#detectedRarityModifier,
 		});
 	}
 
@@ -97,7 +105,8 @@ export class StatCountState {
 			value: this.#value - value,
 			count: this.#count,
 			native: true,
-			rarityModifier: this.#rarityModifier,
+			currentRarityModifier: this.#currentRarityModifier,
+			detectedRarityModifier: this.#detectedRarityModifier,
 		});
 	}
 
@@ -106,7 +115,8 @@ export class StatCountState {
 			value: this.#value - value,
 			count,
 			native: this.#native,
-			rarityModifier: this.#rarityModifier,
+			currentRarityModifier: this.#currentRarityModifier,
+			detectedRarityModifier: this.#detectedRarityModifier,
 		});
 	}
 }
