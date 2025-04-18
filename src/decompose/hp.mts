@@ -27,7 +27,8 @@ export const hpBonus = counter.flatMap((state) => {
 
 	return counter.native({
 		items: [ItemType.Armor],
-		evaluator: (ctx) => Math.round(Math.max(0.1 * c * ctx.x, 1)),
+		evaluator: (ctx) => Math.max(0.1 * c * ctx.x, 1),
+		roundResult: true,
 	});
 });
 

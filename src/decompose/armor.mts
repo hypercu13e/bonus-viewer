@@ -78,6 +78,9 @@ export const armorDest = counter.pipe(
 		return counter.native({
 			items: [ItemType.Arrows, ItemType.Quiver],
 			evaluator: evaluate.polynomial([a, 130 * a, 0]),
+			// TODO: This is most likely a bug in the game engine, which currently rounds bonuses of
+			// this stat separately.
+			roundResult: true,
 		});
 	}),
 	counter.flatMap((state) => {

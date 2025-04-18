@@ -12,3 +12,7 @@ const itemPowerCoeffs: Coeffs = Object.freeze({
 export function power(itemType: ItemType): number {
 	return itemPowerCoeffs[itemType] ?? 1;
 }
+
+export function roundAwayFromZero(x: number): number {
+	return Math.sign(x) * Math.round(Math.abs(x));
+}

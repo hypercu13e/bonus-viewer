@@ -1,4 +1,5 @@
 import { type ItemType, RarityModifier } from '#item';
+import { roundAwayFromZero } from './common.mts';
 import { type BonusCount, BonusCountError, IntegerCount, RangeCount } from './count.mts';
 import type { Evaluator } from './evaluate.mts';
 import * as evaluate from './evaluate.mts';
@@ -35,20 +36,25 @@ export function oneOf(variants: Record<number, BonusCounter>): BonusCounter {
 export type NativeOptions = {
 	items: Iterable<ItemType>;
 	evaluator: Evaluator;
+	roundResult?: boolean;
 };
 
 export function native(options: NativeOptions): BonusCounter {
-	const { items, evaluator: evaluate } = options;
+	const { items, evaluator: evaluate, roundResult = false } = options;
 	const itemTypes = new Set<ItemType>(items);
 
 	return function countNative(state): StatDecompositionState {
 		if (itemTypes.has(state.itemType)) {
-			const value = evaluate({
+			let value = evaluate({
 				// Native bonuses can be treated as regular bonuses with `n` equal to 1, so `x` can
 				// be calculated rather simply in comparison to the `linear()` counter.
 				x: state.lvl + state.upgrade,
 				r: state.rarity,
 			});
+
+			if (roundResult) {
+				value = roundAwayFromZero(value);
+			}
 
 			return state.withNativeBonus(value);
 		} else {
