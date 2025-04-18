@@ -1,4 +1,5 @@
 import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
+import { readonlyProperty } from '#utils';
 import { absDest, magicAbs, physAbs } from './decompose/abs.mts';
 import { armor, armorDest, armorDestRed } from './decompose/armor.mts';
 import { agility, baseAttrs, intelligence, strength } from './decompose/attrs.mts';
@@ -45,8 +46,10 @@ export class DecompositionSuccess {
 	constructor(decomposedStat: DecomposedStat) {
 		this.decomposedStat = decomposedStat;
 
-		Object.defineProperty(this, 'success', { writable: false, configurable: false });
-		Object.defineProperty(this, 'decomposedStat', { writable: false, configurable: false });
+		Object.defineProperties(this, {
+			success: readonlyProperty,
+			decomposedStat: readonlyProperty,
+		});
 	}
 }
 
@@ -57,8 +60,10 @@ export class DecompositionFailure {
 	constructor(error: DecompositionError) {
 		this.error = error;
 
-		Object.defineProperty(this, 'success', { writable: false, configurable: false });
-		Object.defineProperty(this, 'error', { writable: false, configurable: false });
+		Object.defineProperties(this, {
+			success: readonlyProperty,
+			error: readonlyProperty,
+		});
 	}
 }
 

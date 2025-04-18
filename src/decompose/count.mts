@@ -1,3 +1,5 @@
+import { readonlyProperty } from '#utils';
+
 export type BonusCount = IntegerCount | RangeCount;
 
 export class IntegerCount {
@@ -11,8 +13,10 @@ export class IntegerCount {
 
 		this.n = n;
 
-		Object.defineProperty(this, 'type', { writable: false, configurable: false });
-		Object.defineProperty(this, 'n', { writable: false, configurable: false });
+		Object.defineProperties(this, {
+			type: readonlyProperty,
+			n: readonlyProperty,
+		});
 	}
 }
 
@@ -33,9 +37,11 @@ export class RangeCount {
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 
-		Object.defineProperty(this, 'type', { writable: false, configurable: false });
-		Object.defineProperty(this, 'lowerBound', { writable: false, configurable: false });
-		Object.defineProperty(this, 'upperBound', { writable: false, configurable: false });
+		Object.defineProperties(this, {
+			type: readonlyProperty,
+			lowerBound: readonlyProperty,
+			upperBound: readonlyProperty,
+		});
 	}
 }
 

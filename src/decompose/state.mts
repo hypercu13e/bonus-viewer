@@ -1,5 +1,6 @@
 import * as external from '#external';
 import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifier } from '#item';
+import { readonlyProperty } from '#utils';
 import type { BonusCount } from './count.mts';
 
 export type StatDecompositionStateOptions = {
@@ -11,28 +12,20 @@ export type StatDecompositionStateOptions = {
 };
 
 export class StatDecompositionState {
+	readonly value: number;
+	readonly statValue: number;
+	readonly count: BonusCount | undefined;
+	readonly native: boolean | undefined;
+	readonly currentRarityModifier: RarityModifier | undefined;
+	readonly detectedRarityModifier: RarityModifier | undefined;
 	#item: Item;
-	#value: number;
-	#statValue: number;
-	#count: BonusCount | undefined;
-	#native: boolean | undefined;
-	#currentRarityModifier: RarityModifier | undefined;
-	#detectedRarityModifier: RarityModifier | undefined;
 
 	get itemType(): ItemType {
 		return this.#item.type;
 	}
 
 	get rarity(): Rarity {
-		return this.#item.stats.rarity + (this.#currentRarityModifier ?? RarityModifier.Regular);
-	}
-
-	get currentRarityModifier(): RarityModifier | undefined {
-		return this.#currentRarityModifier;
-	}
-
-	get detectedRarityModifier(): RarityModifier | undefined {
-		return this.#detectedRarityModifier;
+		return this.#item.stats.rarity + (this.currentRarityModifier ?? RarityModifier.Regular);
 	}
 
 	get lvl(): number {
@@ -59,30 +52,23 @@ export class StatDecompositionState {
 		return this.#item.stats.charClasses;
 	}
 
-	get value(): number {
-		return this.#value;
-	}
-
-	get statValue(): number {
-		return this.#statValue;
-	}
-
-	get count(): BonusCount | undefined {
-		return this.#count;
-	}
-
-	get native(): boolean | undefined {
-		return this.#native;
-	}
-
 	constructor(item: Item, statValue: number, options?: StatDecompositionStateOptions) {
+		this.value = options?.value ?? statValue;
+		this.statValue = statValue;
+		this.count = options?.count;
+		this.native = options?.native;
+		this.currentRarityModifier = options?.currentRarityModifier;
+		this.detectedRarityModifier = options?.detectedRarityModifier;
 		this.#item = item;
-		this.#value = options?.value ?? statValue;
-		this.#statValue = statValue;
-		this.#count = options?.count;
-		this.#native = options?.native;
-		this.#currentRarityModifier = options?.currentRarityModifier;
-		this.#detectedRarityModifier = options?.detectedRarityModifier;
+
+		Object.defineProperties(this, {
+			value: readonlyProperty,
+			statValue: readonlyProperty,
+			count: readonlyProperty,
+			native: readonlyProperty,
+			currentRarityModifier: readonlyProperty,
+			detectedRarityModifier: readonlyProperty,
+		});
 	}
 
 	hasStat(name: CountableStatName): boolean {
@@ -90,32 +76,32 @@ export class StatDecompositionState {
 	}
 
 	withRarityModifier(modifier: RarityModifier): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.#statValue, {
-			value: this.#value,
-			count: this.#count,
-			native: this.#native,
+		return new StatDecompositionState(this.#item, this.statValue, {
+			value: this.value,
+			count: this.count,
+			native: this.native,
 			currentRarityModifier: modifier,
-			detectedRarityModifier: this.#detectedRarityModifier,
+			detectedRarityModifier: this.detectedRarityModifier,
 		});
 	}
 
 	withNativeBonus(value: number): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.#statValue, {
-			value: this.#value - value,
-			count: this.#count,
+		return new StatDecompositionState(this.#item, this.statValue, {
+			value: this.value - value,
+			count: this.count,
 			native: true,
-			currentRarityModifier: this.#currentRarityModifier,
-			detectedRarityModifier: this.#detectedRarityModifier,
+			currentRarityModifier: this.currentRarityModifier,
+			detectedRarityModifier: this.detectedRarityModifier,
 		});
 	}
 
 	withBonusCount(value: number, count: BonusCount): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.#statValue, {
-			value: this.#value - value,
+		return new StatDecompositionState(this.#item, this.statValue, {
+			value: this.value - value,
 			count,
-			native: this.#native,
-			currentRarityModifier: this.#currentRarityModifier,
-			detectedRarityModifier: this.#detectedRarityModifier,
+			native: this.native,
+			currentRarityModifier: this.currentRarityModifier,
+			detectedRarityModifier: this.detectedRarityModifier,
 		});
 	}
 }
