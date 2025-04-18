@@ -30,7 +30,7 @@ export {
 
 export type ItemBonuses = {
 	readonly rarityModifier: RarityModifier;
-	readonly decompositions: ReadonlyMap<CountableStatName, BonusDecomposition | undefined>;
+	readonly decompositions: Map<CountableStatName, BonusDecomposition | undefined>;
 };
 
 export type BonusDecomposition = {

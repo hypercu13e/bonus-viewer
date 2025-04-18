@@ -23,6 +23,7 @@ export function singular(statName: CountableStatName): StatFormatter {
 		}
 
 		const decomposition = bonuses.decompositions.get(statName);
+		bonuses.decompositions.delete(statName);
 
 		if (decomposition !== undefined) {
 			const formattedDecomposition = formatSegments(
@@ -40,7 +41,12 @@ export function multipleSingleLine(...statNames: CountableStatName[]): StatForma
 	return function formatMultipleSingleLine(bonuses, translation): string {
 		const decompositions = statNames
 			.filter((statName) => bonuses.decompositions.has(statName))
-			.map((statName) => bonuses.decompositions.get(statName));
+			.map((statName) => {
+				const decomposition = bonuses.decompositions.get(statName);
+				bonuses.decompositions.delete(statName);
+
+				return decomposition;
+			});
 
 		if (decompositions.length === 0) {
 			return translation;
