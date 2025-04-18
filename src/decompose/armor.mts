@@ -3,7 +3,7 @@ import { type Coeffs, power } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
-const nativeArmorCoeffs: Coeffs = {
+const nativeArmorCoeffs: Coeffs = Object.freeze({
 	[CharClass.W]: 1.08,
 	[CharClass.P]: 1.0,
 	[CharClass.B]: 0.9,
@@ -25,7 +25,7 @@ const nativeArmorCoeffs: Coeffs = {
 	[CharClass.Bth]: 0.8,
 	[CharClass.Wpbh]: 0.96,
 	[CharClass.All]: 0.9,
-};
+});
 
 export const armor = counter.rarityDependent(
 	counter.pipe(
@@ -53,12 +53,12 @@ export const armor = counter.rarityDependent(
 	),
 );
 
-const nativeArmorDestCoeffs: Coeffs = {
+const nativeArmorDestCoeffs: Coeffs = Object.freeze({
 	[CharClass.H]: 1,
 	[CharClass.Th]: 1,
-};
+});
 
-const regularArmorDestCoeffs: Coeffs = {
+const regularArmorDestCoeffs: Coeffs = Object.freeze({
 	[ItemType.OneHanded]: 4 / 3,
 	[ItemType.HandAndAHalf]: 4 / 3,
 	[ItemType.TwoHanded]: 4 / 3,
@@ -68,7 +68,7 @@ const regularArmorDestCoeffs: Coeffs = {
 	[ItemType.Orb]: 4 / 3,
 	[ItemType.Arrows]: 4 / 3,
 	[ItemType.Quiver]: 4 / 3,
-};
+});
 
 export const armorDest = counter.pipe(
 	counter.flatMap((state) => {

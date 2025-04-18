@@ -69,9 +69,9 @@ export function parseItemData(data: ItemData): Item {
 		log.warn(`[Bonus Viewer] Unrecognizable item type '${data.cl}'`);
 	}
 
-	return {
+	return Object.freeze({
 		name: data.name,
 		type,
 		stats: parseStats(parseStatsData(data.stat)),
-	};
+	});
 }

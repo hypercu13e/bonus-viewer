@@ -39,7 +39,7 @@ export type NativeOptions = {
 
 export function native(options: NativeOptions): BonusCounter {
 	const { items, evaluator: evaluate } = options;
-	const itemTypes: ReadonlySet<ItemType> = new Set(items);
+	const itemTypes = new Set<ItemType>(items);
 
 	return function countNative(state): StatDecompositionState {
 		if (itemTypes.has(state.itemType)) {
@@ -57,16 +57,16 @@ export function native(options: NativeOptions): BonusCounter {
 	};
 }
 
-const rarityModifiers: readonly RarityModifier[] = [
+const rarityModifiers: readonly RarityModifier[] = Object.freeze([
 	RarityModifier.Regular,
 	RarityModifier.Decreased,
 	RarityModifier.Increased,
-];
+]);
 
 export function rarityDependent(counter: BonusCounter): BonusCounter {
 	type ClosestResult = {
-		readonly state: StatDecompositionState;
-		readonly rarityModifier: RarityModifier;
+		state: StatDecompositionState;
+		rarityModifier: RarityModifier;
 	};
 
 	return function countRarityDependentStat(initialState): StatDecompositionState {

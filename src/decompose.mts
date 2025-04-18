@@ -171,10 +171,10 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 		results.set(statName, result!);
 	}
 
-	return {
+	return Object.freeze({
 		rarityModifier: rarityModifier ?? RarityModifier.Regular,
 		results,
-	};
+	});
 }
 
 function isItemDecomposable(item: Item): boolean {

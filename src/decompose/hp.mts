@@ -13,14 +13,14 @@ export const hp = counter.flatMap((state) => {
 	});
 });
 
-const nativeHpBonusCoeffs: Coeffs = {
+const nativeHpBonusCoeffs: Coeffs = Object.freeze({
 	[CharClass.W]: 1,
 	[CharClass.P]: 1,
 	[CharClass.Wp]: 1,
 	[CharClass.Wb]: 1 / 2,
 	[CharClass.Pb]: 1 / 2,
 	[CharClass.Wpb]: 1 / 1.66,
-};
+});
 
 export const hpBonus = counter.flatMap((state) => {
 	const c = nativeHpBonusCoeffs[state.charClasses] ?? 0;

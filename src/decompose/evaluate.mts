@@ -2,8 +2,8 @@ import type { Rarity } from '#item';
 import type { EnumMemberType } from '#utils';
 
 export type EvalContext = {
-	readonly x: number;
-	readonly r: Rarity;
+	x: number;
+	r: Rarity;
 };
 
 export type Evaluator = (ctx: EvalContext) => number;
@@ -20,10 +20,7 @@ export function constant(x: number): Evaluator {
 	};
 }
 
-export function polynomial(
-	coeffs: readonly number[],
-	variable: EvalVariable = EvalVariable.Lvl,
-): Evaluator {
+export function polynomial(coeffs: number[], variable: EvalVariable = EvalVariable.Lvl): Evaluator {
 	// This uses Horner's method to evaluate a polynomial.
 	return function evalPolynomial(ctx): number {
 		const x = variable === EvalVariable.Lvl ? ctx.x : ctx.r;

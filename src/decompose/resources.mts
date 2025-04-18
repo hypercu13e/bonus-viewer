@@ -21,13 +21,13 @@ export const energyDest = counter.flatMap((state) => {
 
 export const energyDestChance = resourceDestChance;
 
-const nativeManaCoeffs: Coeffs = {
+const nativeManaCoeffs: Coeffs = Object.freeze({
 	[CharClass.M]: 1,
 	[CharClass.T]: 0.5,
 	[CharClass.Pm]: 0.5,
 	[CharClass.Mt]: 0.5,
 	[CharClass.Pmt]: 0.5,
-};
+});
 
 export const mana = counter.pipe(
 	counter.flatMap((state) => {

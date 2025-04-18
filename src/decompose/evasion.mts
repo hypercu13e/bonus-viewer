@@ -3,12 +3,12 @@ import type { Coeffs } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
-const nativeEvadeCoeffs: Coeffs = {
+const nativeEvadeCoeffs: Coeffs = Object.freeze({
 	[CharClass.B]: 1 / 3,
 	[CharClass.Bt]: 1 / 6,
 	[CharClass.Bh]: 1 / 6,
 	[CharClass.Bth]: 1 / 7,
-};
+});
 
 export const evade = counter.pipe(
 	counter.flatMap((state) => {
@@ -24,10 +24,10 @@ export const evade = counter.pipe(
 
 export const evadeRed = counter.linear({ a1: evaluate.polynomial([0.1, 0]) });
 
-const nativeBlockCoeffs: Coeffs = {
+const nativeBlockCoeffs: Coeffs = Object.freeze({
 	[CharClass.P]: 1.2,
 	[CharClass.Wp]: 1.1,
-};
+});
 
 export const block = counter.pipe(
 	counter.flatMap((state) => {

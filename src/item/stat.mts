@@ -171,7 +171,7 @@ export type Stats = {
 	readonly loweredLvl: number | undefined;
 	readonly countableStats: CountableStats;
 };
-export type CountableStats = ReadonlyMap<CountableStatName, number>;
+export type CountableStats = Map<CountableStatName, number>;
 
 type CountableStatParser = (
 	countableStats: Map<CountableStatName, number>,
@@ -256,14 +256,14 @@ export function parseStats(data: StatsData): Stats {
 		}
 	}
 
-	return {
+	return Object.freeze({
 		rarity,
 		charClasses,
 		lvl,
 		upgradeLvl,
 		loweredLvl,
 		countableStats,
-	};
+	});
 }
 
 function parseRarity(statsData: StatsData): Rarity {

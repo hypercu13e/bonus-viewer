@@ -30,33 +30,33 @@ const regularAbs = counter.flatMap((state) => {
 	});
 });
 
-const nativePhysAbsCoeffs: Coeffs = {
+const nativePhysAbsCoeffs: Coeffs = Object.freeze({
 	[CharClass.M]: 6,
 	[CharClass.T]: 4,
 	[CharClass.Pm]: 3,
 	[CharClass.Pt]: 1.2,
 	[CharClass.Mt]: 5,
 	[CharClass.Pmt]: 3.36,
-};
+});
 
 export const physAbs = counter.rarityDependent(
 	counter.pipe(nativeAbs(nativePhysAbsCoeffs), regularAbs),
 );
 
-const nativeMagicAbsCoeffs: Coeffs = {
+const nativeMagicAbsCoeffs: Coeffs = Object.freeze({
 	[CharClass.M]: 3,
 	[CharClass.T]: 2,
 	[CharClass.Pm]: 1.5,
 	[CharClass.Pt]: 0.6,
 	[CharClass.Mt]: 2.5,
 	[CharClass.Pmt]: 1.68,
-};
+});
 
 export const magicAbs = counter.rarityDependent(
 	counter.pipe(nativeAbs(nativeMagicAbsCoeffs), regularAbs),
 );
 
-const regularAbsDestCoeffs: Coeffs = {
+const regularAbsDestCoeffs: Coeffs = Object.freeze({
 	[ItemType.OneHanded]: 1,
 	[ItemType.HandAndAHalf]: 1.1,
 	[ItemType.TwoHanded]: 1.2,
@@ -66,7 +66,7 @@ const regularAbsDestCoeffs: Coeffs = {
 	[ItemType.Orb]: 0.7,
 	[ItemType.Arrows]: 0.4,
 	[ItemType.Quiver]: 0.4,
-};
+});
 
 export const absDest = counter.rarityDependent(
 	counter.flatMap((state) => {
