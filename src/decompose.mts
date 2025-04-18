@@ -1,5 +1,4 @@
 import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
-import * as log from '#log';
 import { absDest, magicAbs, physAbs } from './decompose/abs.mts';
 import { armor, armorDest, armorDestRed } from './decompose/armor.mts';
 import { agility, baseAttrs, intelligence, strength } from './decompose/attrs.mts';
@@ -133,54 +132,43 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 	// However, once it does, we can cache the result because it shouldn't change.
 	let rarityModifier: RarityModifier | undefined;
 
-	try {
-		log.groupStart(item.name);
-		log.debug(item);
+	for (const [statName, statValue] of item.stats.countableStats) {
+		const counter = counters[statName];
+		const initialState = new StatDecompositionState(item, statValue, {
+			detectedRarityModifier: rarityModifier,
+		});
+		let finalState: StatDecompositionState | undefined;
+		let result: DecompositionResult;
 
-		// SAFETY: `counters` is a frozen object with keys of type `CountableStatName`, so it cannot
-		// contain keys of other type.
-		for (const [statName, statValue] of item.stats.countableStats) {
-			let result: DecompositionResult;
-
-			try {
-				log.groupStart(statName);
-
-				const counter = counters[statName];
-				const initialState = new StatDecompositionState(item, statValue, {
-					detectedRarityModifier: rarityModifier,
-				});
-				const finalState = counter(initialState);
-
-				if (finalState.value === 0) {
-					rarityModifier ??= finalState.currentRarityModifier;
-					result = new DecompositionSuccess(
-						Object.freeze({
-							count: finalState.count,
-							native: finalState.native,
-							rarityDependent: finalState.currentRarityModifier !== undefined,
-						}),
-					);
-
-					log.debug(`stat '${statName}' decomposed:`, result);
-				} else {
-					result = new DecompositionFailure(
-						new DecompositionError('stat value did not fully decompose'),
-					);
-				}
-			} catch (error) {
-				result = new DecompositionFailure(
-					new DecompositionError('bonus counter failed', { cause: error }),
-				);
-
-				log.error(error);
-			} finally {
-				log.groupEnd();
-			}
-
-			results.set(statName, result);
+		try {
+			finalState = counter(initialState);
+		} catch (error) {
+			result = new DecompositionFailure(
+				new DecompositionError('bonus counter failed', { cause: error }),
+			);
 		}
-	} finally {
-		log.groupEnd();
+
+		if (finalState !== undefined) {
+			if (finalState.value === 0) {
+				rarityModifier ??= finalState.currentRarityModifier;
+				result = new DecompositionSuccess(
+					Object.freeze({
+						count: finalState.count,
+						native: finalState.native,
+						rarityDependent: finalState.currentRarityModifier !== undefined,
+					}),
+				);
+			} else {
+				result = new DecompositionFailure(
+					new DecompositionError('stat value did not fully decompose'),
+				);
+			}
+		}
+
+		// SAFETY: If decomposition failed, then `result` was set by the `catch` statement above. On
+		// the other hand, if it succeeded, then `finalState` must have been set, so `result` would
+		// be set by the preceding `if` statement.
+		results.set(statName, result!);
 	}
 
 	return {

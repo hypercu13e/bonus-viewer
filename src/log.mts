@@ -19,15 +19,3 @@ export function error(...args: unknown[]): undefined {
 		console.error(...args);
 	}
 }
-
-export function groupStart(...args: unknown[]): undefined {
-	if (globalThis.DEV) {
-		console.groupCollapsed(...args);
-	}
-}
-
-export function groupEnd(): undefined {
-	if (globalThis.DEV) {
-		console.groupEnd();
-	}
-}

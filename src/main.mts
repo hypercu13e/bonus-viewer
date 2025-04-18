@@ -3,6 +3,7 @@ import { type ItemTooltipGetter, type TranslationGetter, newInterfaceEnabled } f
 import { type StatFormatter, bonusesClassName } from '#format';
 import * as format from '#format';
 import { parseItemData } from '#item';
+import * as log from '#log';
 
 const statFormatters = new Map<string, StatFormatter>([
 	['item_ac %val%', format.singular('armor')],
@@ -67,6 +68,10 @@ function createAugmentedItemTooltipGetter(getTip: ItemTooltipGetter): ItemToolti
 	return function augmentItemTooltipWithBonuses(itemData, ...args): string {
 		const item = parseItemData(itemData);
 		decomposedItem = decomposeItem(item);
+
+		if (decomposedItem !== undefined) {
+			log.debug(`${item.name}:`, decomposedItem);
+		}
 
 		try {
 			return getTip(itemData, ...args);
