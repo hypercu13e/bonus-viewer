@@ -15,6 +15,7 @@ const energyDestA0Evaluator = evaluate.polynomial([0.04, 2]);
 export const energyDest = counter.flatMap((state) => {
 	return counter.linear({
 		a0: energyDestA0Evaluator({ x: state.lvl + state.upgrade, r: state.rarity }),
+		extendDomainToZero: true,
 	});
 });
 
@@ -48,6 +49,7 @@ const manaDestA0Evaluator = evaluate.polynomial([0.08, 6]);
 export const manaDest = counter.flatMap((state) => {
 	return counter.linear({
 		a0: manaDestA0Evaluator({ x: state.lvl + state.upgrade, r: state.rarity }),
+		extendDomainToZero: true,
 	});
 });
 

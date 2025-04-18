@@ -61,11 +61,18 @@ export function native(options: NativeOptions): BonusCounter {
 export type LinearOptions = {
 	a1?: Evaluator;
 	a0?: number;
+	extendDomainToZero?: boolean;
 	negativeEffect?: boolean;
 };
 
 export function linear(options: LinearOptions): BonusCounter {
-	const { a1 = evaluate.constant(1), a0 = 0, negativeEffect = false } = options;
+	const {
+		a1 = evaluate.constant(1),
+		a0 = 0,
+		extendDomainToZero = false,
+		negativeEffect = false,
+	} = options;
+	const extendedA0 = extendDomainToZero ? a0 : 0;
 
 	return function countLinear(state): StatCountState {
 		// TODO: This works out nicely... on paper. Since this operates on floats, it'd be nice to
@@ -77,7 +84,12 @@ export function linear(options: LinearOptions): BonusCounter {
 		//
 		//                                  ⎧ round(t + a1 × n + a0), for n > 0
 		//                           f(n) = ⎨
-		//                                  ⎩ round(t + a0), for n = 0
+		//                                  ⎩ round(t + a0?), for n = 0
+		//
+		// Here, `a0?` means that a0 applies optionally. Formulas for most stats applies only when
+		// `n` is positive, and for `n = 0`, the bonus value is fixed to 0. However, some stats can
+		// have their domain extended to non-negative numbers, in which case the final value
+		// includes a1 × 0 + a0 = a0.
 		//
 		// Let's start with the first part of the function:
 		//
@@ -115,9 +127,9 @@ export function linear(options: LinearOptions): BonusCounter {
 		//
 		// Moving back to the second branch of the f(n) function, we get a similar result:
 		//
-		//   1. y > 0:    k - 0.5 ≤ a0 < k + 0.5    ≡    a0 - 0.5 < k ≤ a0 + 0.5
-		//   2. y < 0:    k - 0.5 < a0 ≤ k + 0.5    ≡    a0 - 0.5 ≤ k < a0 + 0.5
-		//   3. y = 0:    k - 0.5 < a0 < k + 0.5    ≡    a0 - 0.5 < k < a0 + 0.5
+		//   1. y > 0:    k - 0.5 ≤ a0? < k + 0.5    ≡    a0? - 0.5 < k ≤ a0? + 0.5
+		//   2. y < 0:    k - 0.5 < a0? ≤ k + 0.5    ≡    a0? - 0.5 ≤ k < a0? + 0.5
+		//   3. y = 0:    k - 0.5 < a0? < k + 0.5    ≡    a0? - 0.5 < k < a0? + 0.5
 		const { lvl: l, upgrade, value: k } = state;
 		let { statValue: y } = state;
 		let lowerBound = k - a0 - 0.5;
@@ -182,9 +194,9 @@ export function linear(options: LinearOptions): BonusCounter {
 			bonusCount = count.range(lowerBound, upperBound);
 		} else if (
 			// This covers the second branch of the f(n) function.
-			(y > 0 && a0 - 0.5 < k && k <= a0 + 0.5) ||
-			(y < 0 && a0 - 0.5 <= k && k < a0 + 0.5) ||
-			(y === 0 && a0 - 0.5 < k && k < a0 + 0.5)
+			(y > 0 && extendedA0 - 0.5 < k && k <= extendedA0 + 0.5) ||
+			(y < 0 && extendedA0 - 0.5 <= k && k < extendedA0 + 0.5) ||
+			(y === 0 && extendedA0 - 0.5 < k && k < extendedA0 + 0.5)
 		) {
 			bonusCount = count.int(0);
 		} else {
