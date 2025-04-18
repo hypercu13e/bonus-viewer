@@ -1,3 +1,44 @@
+export type BonusCount = IntegerCount | RangeCount;
+
+export class IntegerCount {
+	readonly type = 'integer';
+	readonly n: number;
+
+	constructor(n: number) {
+		if (!Number.isSafeInteger(n)) {
+			throw new TypeError('integer count must be an integer');
+		}
+
+		this.n = n;
+
+		Object.defineProperty(this, 'type', { writable: false, configurable: false });
+		Object.defineProperty(this, 'n', { writable: false, configurable: false });
+	}
+}
+
+export class RangeCount {
+	readonly type = 'range';
+	readonly lowerBound: number;
+	readonly upperBound: number;
+
+	constructor(lowerBound: number, upperBound: number) {
+		if (!Number.isSafeInteger(lowerBound)) {
+			throw new TypeError('lower bound in range count must be an integer');
+		}
+
+		if (!Number.isSafeInteger(upperBound)) {
+			throw new TypeError('upper bound in range count must be an integer');
+		}
+
+		this.lowerBound = lowerBound;
+		this.upperBound = upperBound;
+
+		Object.defineProperty(this, 'type', { writable: false, configurable: false });
+		Object.defineProperty(this, 'lowerBound', { writable: false, configurable: false });
+		Object.defineProperty(this, 'upperBound', { writable: false, configurable: false });
+	}
+}
+
 export class BonusCountError extends Error {
 	override name = 'CountError';
 	counterName: string;
@@ -11,36 +52,4 @@ export class BonusCountError extends Error {
 
 		this.counterName = counterName;
 	}
-}
-
-export const integerType = Symbol('IntegerCount');
-export const rangeType = Symbol('RangeCount');
-
-export type IntegerCount = {
-	readonly type: typeof integerType;
-	readonly n: number;
-};
-
-export type RangeCount = {
-	readonly type: typeof rangeType;
-	readonly lowerBound: number;
-	readonly upperBound: number;
-};
-
-export type BonusCount = IntegerCount | RangeCount;
-
-export function int(n: number): IntegerCount {
-	return { type: integerType, n };
-}
-
-export function range(lowerBound: number, upperBound: number): RangeCount {
-	return { type: rangeType, lowerBound, upperBound };
-}
-
-export function isInt(count: BonusCount): count is IntegerCount {
-	return count.type === integerType;
-}
-
-export function isRange(count: BonusCount): count is RangeCount {
-	return count.type === rangeType;
 }

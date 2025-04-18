@@ -1,6 +1,5 @@
 import { type ItemType, RarityModifier } from '#item';
-import { type BonusCount, BonusCountError } from './count.mts';
-import * as count from './count.mts';
+import { type BonusCount, BonusCountError, IntegerCount, RangeCount } from './count.mts';
 import type { Evaluator } from './evaluate.mts';
 import * as evaluate from './evaluate.mts';
 import type { StatCountState } from './state.mts';
@@ -97,7 +96,7 @@ export function rarityDependent(counter: BonusCounter): BonusCounter {
 				}
 			}
 
-			if (count.isInt(state.count)) {
+			if (state.count.type === 'integer') {
 				currentDistance = Math.abs(state.count.n);
 			} else {
 				currentDistance = Math.abs(state.count.upperBound + state.count.lowerBound) / 2;
@@ -248,16 +247,16 @@ export function linear(options: LinearOptions): BonusCounter {
 		upperBound = Math.floor(upperBound) + 0;
 
 		if (lowerBound === upperBound) {
-			bonusCount = count.int(lowerBound);
+			bonusCount = new IntegerCount(lowerBound);
 		} else if (lowerBound < upperBound) {
-			bonusCount = count.range(lowerBound, upperBound);
+			bonusCount = new RangeCount(lowerBound, upperBound);
 		} else if (
 			// This covers the second branch of the f(n) function.
 			(y > 0 && extendedA0 - 0.5 < k && k <= extendedA0 + 0.5) ||
 			(y < 0 && extendedA0 - 0.5 <= k && k < extendedA0 + 0.5) ||
 			(y === 0 && extendedA0 - 0.5 < k && k < extendedA0 + 0.5)
 		) {
-			bonusCount = count.int(0);
+			bonusCount = new IntegerCount(0);
 		} else {
 			throw new BonusCountError(linear.name);
 		}
@@ -268,7 +267,7 @@ export function linear(options: LinearOptions): BonusCounter {
 
 export function constant(n: number): BonusCounter {
 	return function countConstant(state): StatCountState {
-		return state.withBonusCount(state.value, count.int(n));
+		return state.withBonusCount(state.value, new IntegerCount(n));
 	};
 }
 

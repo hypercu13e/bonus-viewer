@@ -1,7 +1,6 @@
 import * as external from '#external';
 import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifier } from '#item';
-import type { BonusCount } from './count.mts';
-import * as count from './count.mts';
+import { type BonusCount, IntegerCount } from './count.mts';
 
 export type StatCountStateOptions = {
 	value?: number | undefined;
@@ -80,7 +79,7 @@ export class StatCountState {
 		this.#item = item;
 		this.#value = options?.value ?? statValue;
 		this.#statValue = statValue;
-		this.#count = options?.count ?? count.int(0);
+		this.#count = options?.count ?? new IntegerCount(0);
 		this.#native = options?.native ?? false;
 		this.#currentRarityModifier = options?.currentRarityModifier;
 		this.#detectedRarityModifier = options?.detectedRarityModifier;

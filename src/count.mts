@@ -21,11 +21,9 @@ import {
 import { StatCountState } from './count/state.mts';
 
 export {
-	type IntegerCount,
-	type RangeCount,
+	IntegerCount,
+	RangeCount,
 	type BonusCount,
-	isInt,
-	isRange,
 } from './count/count.mts';
 
 export type ItemBonuses = {

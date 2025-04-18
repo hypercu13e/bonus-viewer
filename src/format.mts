@@ -1,5 +1,4 @@
 import type { BonusDecomposition, ItemBonuses } from '#count';
-import * as count from '#count';
 import { type CountableStatName, RarityModifier } from '#item';
 
 const plus = '\u{002b}';
@@ -95,7 +94,7 @@ function toSegments(
 			!allDecompositionsDependOnRarity &&
 			isSignificantRarityModifier(rarityModifier);
 
-		if (count.isInt(bonusCount)) {
+		if (bonusCount.type === 'integer') {
 			let intSegments = segments;
 
 			if (withRarityModifier) {
