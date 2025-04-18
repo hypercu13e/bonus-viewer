@@ -10,6 +10,7 @@ const nbsp = '\u{00a0}';
 const nativeBonusSymbol = 'n';
 const rarityModifierSymbol = 'r';
 const decompositionErrorSymbol = '(?)';
+const newline = '<br>';
 export const bonusesClassName = 'item-stat-bonuses';
 
 type Segments = Array<string | Segments>;
@@ -63,6 +64,23 @@ export function multipleSingleLine(...statNames: CountableStatName[]): StatForma
 			formattedBonuses = formatBonuses(decomposedStats, decomposedItem.rarityModifier);
 
 			return translationWithBonuses(translation, formattedBonuses);
+		}
+	};
+}
+
+export function multipleMultiLine(...statLines: CountableStatName[][]): StatFormatter {
+	return function formatMultipleMultiLine(decomposedItem, translation): string {
+		const lines = translation.split(newline);
+
+		if (lines.length === statLines.length) {
+			return (
+				lines
+					// SAFETY: We've just checked that both arrays have the same length.
+					.map((line, i) => multipleSingleLine(...statLines[i]!)(decomposedItem, line))
+					.join(newline)
+			);
+		} else {
+			return translation;
 		}
 	};
 }
