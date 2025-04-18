@@ -18,6 +18,10 @@ export type StatFormatter = (bonuses: ItemBonuses, translation: string) => strin
 
 export function singular(statName: CountableStatName): StatFormatter {
 	return function formatSingular(bonuses, translation): string {
+		if (!bonuses.decompositions.has(statName)) {
+			return translation;
+		}
+
 		const decomposition = bonuses.decompositions.get(statName);
 
 		if (decomposition !== undefined) {
@@ -34,7 +38,9 @@ export function singular(statName: CountableStatName): StatFormatter {
 
 export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
 	return function formatMultipleSingleLine(bonuses, translation): string {
-		const decompositions = statNames.map((statName) => bonuses.decompositions.get(statName));
+		const decompositions = statNames
+			.filter((statName) => bonuses.decompositions.has(statName))
+			.map((statName) => bonuses.decompositions.get(statName));
 
 		if (decompositions.length === 0) {
 			return translation;
