@@ -1,14 +1,14 @@
 import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
 import * as log from '#log';
-import { absDest, magicAbs, physAbs } from './count/abs.mts';
-import { armor, armorDest, armorDestRed } from './count/armor.mts';
-import { agility, baseAttrs, intelligence, strength } from './count/attrs.mts';
-import type { BonusCount } from './count/count.mts';
-import type { BonusCounter } from './count/counter.mts';
-import * as counter from './count/counter.mts';
-import { crit, critPower, critPowerRed, critRed } from './count/crit.mts';
-import { block, evade, evadeRed, pierceBlock } from './count/evasion.mts';
-import { hp, hpBonus, hpRegen, hpRegenEnemyRed, hpRegenSelfRed } from './count/hp.mts';
+import { absDest, magicAbs, physAbs } from './decompose/abs.mts';
+import { armor, armorDest, armorDestRed } from './decompose/armor.mts';
+import { agility, baseAttrs, intelligence, strength } from './decompose/attrs.mts';
+import type { BonusCount } from './decompose/count.mts';
+import type { BonusCounter } from './decompose/counter.mts';
+import * as counter from './decompose/counter.mts';
+import { crit, critPower, critPowerRed, critRed } from './decompose/crit.mts';
+import { block, evade, evadeRed, pierceBlock } from './decompose/evasion.mts';
+import { hp, hpBonus, hpRegen, hpRegenEnemyRed, hpRegenSelfRed } from './decompose/hp.mts';
 import {
 	energy,
 	energyDest,
@@ -17,14 +17,14 @@ import {
 	manaDest,
 	manaDestChance,
 	resourcesDestRed,
-} from './count/resources.mts';
-import { StatCountState } from './count/state.mts';
+} from './decompose/resources.mts';
+import { StatCountState } from './decompose/state.mts';
 
 export {
 	IntegerCount,
 	RangeCount,
 	type BonusCount,
-} from './count/count.mts';
+} from './decompose/count.mts';
 
 export type ItemBonuses = {
 	readonly rarityModifier: RarityModifier;

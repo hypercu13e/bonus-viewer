@@ -1,4 +1,4 @@
-import type { BonusDecomposition, ItemBonuses } from '#count';
+import type { BonusDecomposition, ItemBonuses } from '#decompose';
 import { type CountableStatName, RarityModifier } from '#item';
 
 const plus = '\u{002b}';

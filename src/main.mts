@@ -1,4 +1,4 @@
-import { type ItemBonuses, countBonuses } from '#count';
+import { type ItemBonuses, countBonuses } from '#decompose';
 import { type ItemTooltipGetter, type TranslationGetter, newInterfaceEnabled } from '#external';
 import { type StatFormatter, bonusDecompositionClassName } from '#format';
 import * as format from '#format';
