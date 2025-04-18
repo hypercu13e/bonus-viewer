@@ -37,6 +37,9 @@ export const ItemType = Object.freeze({
 	Recipe: 27,
 	Currency: 28,
 	Quiver: 29,
+	Outfit: 30,
+	Pet: 31,
+	Teleport: 32,
 });
 
 export type ItemData = {
@@ -57,7 +60,7 @@ export function parseItem(data: ItemData): Item {
 	// The reason why the comparison with `ItemType.Unknown` uses `>` instead of `>=` is that `-0`
 	// is an integer in JS, and `-0 >= 0` is true. However, we should treat `-0` as an invalid item
 	// type and coerce it to `0`. Using `>=` would silently assign `-0` as a valid type.
-	if (Number.isInteger(data.cl) && data.cl > ItemType.Unknown && data.cl <= ItemType.Quiver) {
+	if (Number.isInteger(data.cl) && data.cl > ItemType.Unknown && data.cl <= ItemType.Teleport) {
 		// SAFETY: We've just validated that this is in range.
 		type = data.cl as ItemType;
 	} else {
