@@ -64,23 +64,14 @@ const rarityModifiers: readonly RarityModifier[] = Object.freeze([
 ]);
 
 export function rarityDependent(counter: BonusCounter): BonusCounter {
-	type ClosestResult = {
-		state: StatDecompositionState;
-		rarityModifier: RarityModifier;
-	};
-
 	return function countRarityDependentStat(initialState): StatDecompositionState {
 		// If we already know the modifier, then short-circuit counting.
 		if (initialState.detectedRarityModifier !== undefined) {
 			return counter(initialState.withRarityModifier(initialState.detectedRarityModifier));
 		}
 
-		let closest: ClosestResult | undefined;
-		let smallestDistance = Number.POSITIVE_INFINITY;
-
 		for (const rarityModifier of rarityModifiers) {
 			let state: StatDecompositionState;
-			let currentDistance: number;
 
 			try {
 				state = counter(initialState.withRarityModifier(rarityModifier));
@@ -96,23 +87,12 @@ export function rarityDependent(counter: BonusCounter): BonusCounter {
 				}
 			}
 
-			if (state.count.type === 'integer') {
-				currentDistance = Math.abs(state.count.n);
-			} else {
-				currentDistance = Math.abs(state.count.upperBound + state.count.lowerBound) / 2;
-			}
-
-			if (currentDistance < smallestDistance) {
-				closest = { state, rarityModifier };
-				smallestDistance = currentDistance;
+			if (state.value === 0) {
+				return state;
 			}
 		}
 
-		if (closest !== undefined) {
-			return closest.state;
-		} else {
-			throw new BonusCountError(rarityDependent.name, 'no fitting rarity modifier was found');
-		}
+		throw new BonusCountError(rarityDependent.name, 'no fitting rarity modifier was found');
 	};
 }
 

@@ -1,6 +1,6 @@
 import * as external from '#external';
 import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifier } from '#item';
-import { type BonusCount, IntegerCount } from './count.mts';
+import type { BonusCount } from './count.mts';
 
 export type StatDecompositionStateOptions = {
 	value?: number | undefined;
@@ -14,8 +14,8 @@ export class StatDecompositionState {
 	#item: Item;
 	#value: number;
 	#statValue: number;
-	#count: BonusCount;
-	#native: boolean;
+	#count: BonusCount | undefined;
+	#native: boolean | undefined;
 	#currentRarityModifier: RarityModifier | undefined;
 	#detectedRarityModifier: RarityModifier | undefined;
 
@@ -67,11 +67,11 @@ export class StatDecompositionState {
 		return this.#statValue;
 	}
 
-	get count(): BonusCount {
+	get count(): BonusCount | undefined {
 		return this.#count;
 	}
 
-	get native(): boolean {
+	get native(): boolean | undefined {
 		return this.#native;
 	}
 
@@ -79,8 +79,8 @@ export class StatDecompositionState {
 		this.#item = item;
 		this.#value = options?.value ?? statValue;
 		this.#statValue = statValue;
-		this.#count = options?.count ?? new IntegerCount(0);
-		this.#native = options?.native ?? false;
+		this.#count = options?.count;
+		this.#native = options?.native;
 		this.#currentRarityModifier = options?.currentRarityModifier;
 		this.#detectedRarityModifier = options?.detectedRarityModifier;
 	}

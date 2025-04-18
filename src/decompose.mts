@@ -2,7 +2,7 @@ import { type CountableStatName, type Item, ItemType, RarityModifier } from '#it
 import { absDest, magicAbs, physAbs } from './decompose/abs.mts';
 import { armor, armorDest, armorDestRed } from './decompose/armor.mts';
 import { agility, baseAttrs, intelligence, strength } from './decompose/attrs.mts';
-import type { BonusCount } from './decompose/count.mts';
+import { type BonusCount, IntegerCount } from './decompose/count.mts';
 import type { BonusCounter } from './decompose/counter.mts';
 import * as counter from './decompose/counter.mts';
 import { crit, critPower, critPowerRed, critRed } from './decompose/crit.mts';
@@ -153,8 +153,8 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 				rarityModifier ??= finalState.currentRarityModifier;
 				result = new DecompositionSuccess(
 					Object.freeze({
-						count: finalState.count,
-						native: finalState.native,
+						count: finalState.count ?? new IntegerCount(0),
+						native: finalState.native ?? false,
 						rarityDependent: finalState.currentRarityModifier !== undefined,
 					}),
 				);
