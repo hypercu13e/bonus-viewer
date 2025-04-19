@@ -57,7 +57,7 @@ export function native(options: NativeOptions): BonusCounter {
 			}
 
 			if (value !== 0) {
-				return state.withNativeBonus(value);
+				return state.with({ value: state.value - value, native: true });
 			} else {
 				return state;
 			}
@@ -77,14 +77,18 @@ export function rarityDependent(counter: BonusCounter): BonusCounter {
 	return function countRarityDependentStat(initialState): StatDecompositionState {
 		// If we already know the modifier, then short-circuit counting.
 		if (initialState.detectedRarityModifier !== undefined) {
-			return counter(initialState.withRarityModifier(initialState.detectedRarityModifier));
+			const state = initialState.with({
+				currentRarityModifier: initialState.detectedRarityModifier,
+			});
+
+			return counter(state);
 		}
 
 		for (const rarityModifier of rarityModifiers) {
 			let state: StatDecompositionState;
 
 			try {
-				state = counter(initialState.withRarityModifier(rarityModifier));
+				state = counter(initialState.with({ currentRarityModifier: rarityModifier }));
 			} catch (error) {
 				if (error instanceof BonusCountError) {
 					continue;
@@ -251,13 +255,13 @@ export function linear(options: LinearOptions): BonusCounter {
 			throw new BonusCountError(linear.name);
 		}
 
-		return state.withBonusCount(k, bonusCount);
+		return state.with({ value: state.value - k, count: bonusCount });
 	};
 }
 
 export function constant(n: number): BonusCounter {
 	return function countConstant(state): StatDecompositionState {
-		return state.withBonusCount(state.value, new IntegerCount(n));
+		return state.with({ value: 0, count: new IntegerCount(n) });
 	};
 }
 

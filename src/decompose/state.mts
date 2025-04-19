@@ -88,39 +88,6 @@ export class StatDecompositionState {
 		return this.#item.stats.countableStats.get(name);
 	}
 
-	withRarityModifier(modifier: RarityModifier): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.statValue, {
-			value: this.value,
-			count: this.count,
-			native: this.native,
-			nativeMagicResType: this.nativeMagicResType,
-			currentRarityModifier: modifier,
-			detectedRarityModifier: this.detectedRarityModifier,
-		});
-	}
-
-	withNativeBonus(value: number): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.statValue, {
-			value: this.value - value,
-			count: this.count,
-			native: true,
-			nativeMagicResType: this.nativeMagicResType,
-			currentRarityModifier: this.currentRarityModifier,
-			detectedRarityModifier: this.detectedRarityModifier,
-		});
-	}
-
-	withBonusCount(value: number, count: BonusCount): StatDecompositionState {
-		return new StatDecompositionState(this.#item, this.statValue, {
-			value: this.value - value,
-			count,
-			native: this.native,
-			nativeMagicResType: this.nativeMagicResType,
-			currentRarityModifier: this.currentRarityModifier,
-			detectedRarityModifier: this.detectedRarityModifier,
-		});
-	}
-
 	with(options?: StatDecompositionStateOptions): StatDecompositionState {
 		return new StatDecompositionState(this.#item, this.statValue, {
 			value: options?.value ?? this.value,
