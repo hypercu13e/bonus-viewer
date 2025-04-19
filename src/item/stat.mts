@@ -68,6 +68,13 @@ export const CharClass = {
 
 Object.freeze(CharClass);
 
+export type MagicResType = EnumMemberType<typeof MagicResType>;
+export const MagicResType = Object.freeze({
+	Fire: 0,
+	Frost: 1,
+	Light: 2,
+});
+
 export class StatError extends Error {
 	override name = 'StatError';
 

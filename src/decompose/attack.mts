@@ -1,5 +1,5 @@
-import { CharClass, ItemType } from '../item.mjs';
-import type { Coeffs } from './common.mjs';
+import { CharClass, ItemType } from '#item';
+import { type Coeffs, isDotWeapon, isMagicWeapon } from './common.mjs';
 import type { BonusCounter } from './counter.mjs';
 import * as counter from './counter.mjs';
 import * as evaluate from './evaluate.mjs';
@@ -31,15 +31,9 @@ const physDmg = (factor: number): BonusCounter =>
 	counter.flatMap((state) => {
 		let c: number;
 
-		if (
-			state.hasStat('fireDmg') ||
-			state.hasStat('lightDmgMin') ||
-			state.hasStat('lightDmgMax') ||
-			state.hasStat('frostDmg') ||
-			state.hasStat('frostSlow')
-		) {
+		if (isMagicWeapon(state)) {
 			c = magicPhysDmgCoeffs[state.itemType] ?? 0;
-		} else if (state.hasStat('poisonDmg') || state.hasStat('woundDmg')) {
+		} else if (isDotWeapon(state)) {
 			c = dotPhysDmgCoeffs[state.itemType] ?? 0;
 		} else {
 			c = physDmgCoeffs[state.itemType] ?? 0;

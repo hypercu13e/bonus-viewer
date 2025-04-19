@@ -1,4 +1,10 @@
-import { type CountableStatName, type Item, ItemType, RarityModifier } from '#item';
+import {
+	type CountableStatName,
+	type Item,
+	ItemType,
+	type MagicResType,
+	RarityModifier,
+} from '#item';
 import { readonlyProperty } from '#utils';
 import { absDest, magicAbs, physAbs } from './decompose/abs.mts';
 import { armor, armorDest, armorDestRed } from './decompose/armor.mts';
@@ -23,10 +29,10 @@ import {
 import { agility, baseAttrs, intelligence, strength } from './decompose/attrs.mts';
 import { type BonusCount, IntegerCount } from './decompose/count.mts';
 import type { BonusCounter } from './decompose/counter.mts';
-import * as counter from './decompose/counter.mts';
 import { crit, critPower, critPowerRed, critRed } from './decompose/crit.mts';
 import { block, evade, evadeRed, pierceBlock } from './decompose/evasion.mts';
 import { hp, hpBonus, hpRegen, hpRegenEnemyRed, hpRegenSelfRed } from './decompose/hp.mts';
+import { fireRes, frostRes, lightRes, poisonRes, resDest } from './decompose/res.mts';
 import {
 	energy,
 	energyDest,
@@ -45,11 +51,11 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	physAbs,
 	magicAbs,
 	absDest,
-	fireRes: counter.unimplemented,
-	lightRes: counter.unimplemented,
-	frostRes: counter.unimplemented,
-	poisonRes: counter.unimplemented,
-	resDest: counter.unimplemented,
+	fireRes,
+	lightRes,
+	frostRes,
+	poisonRes,
+	resDest,
 	physDmgMin,
 	physDmgMax,
 	rangedDmg,
@@ -154,10 +160,12 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 	// There's no way of knowing it until the counter of a stat that might be affected by it runs.
 	// However, once it does, we can cache the result because it shouldn't change.
 	let rarityModifier: RarityModifier | undefined;
+	let nativeMagicResType: MagicResType | undefined;
 
 	for (const [statName, statValue] of item.stats.countableStats) {
 		const counter = counters[statName];
 		const initialState = new StatDecompositionState(item, statValue, {
+			nativeMagicResType,
 			detectedRarityModifier: rarityModifier,
 		});
 		let finalState: StatDecompositionState | undefined;
@@ -174,6 +182,7 @@ export function decomposeItem(item: Item): DecomposedItem | undefined {
 		if (finalState !== undefined) {
 			if (finalState.value === 0) {
 				rarityModifier ??= finalState.currentRarityModifier;
+				nativeMagicResType ??= finalState.nativeMagicResType;
 				result = new DecompositionSuccess(
 					Object.freeze({
 						count: finalState.count ?? new IntegerCount(0),

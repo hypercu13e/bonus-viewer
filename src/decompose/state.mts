@@ -1,5 +1,12 @@
 import * as external from '#external';
-import { type CountableStatName, type Item, ItemType, type Rarity, RarityModifier } from '#item';
+import {
+	type CountableStatName,
+	type Item,
+	ItemType,
+	type MagicResType,
+	type Rarity,
+	RarityModifier,
+} from '#item';
 import { readonlyProperty } from '#utils';
 import type { BonusCount } from './count.mts';
 
@@ -7,6 +14,7 @@ export type StatDecompositionStateOptions = {
 	value?: number | undefined;
 	count?: BonusCount | undefined;
 	native?: boolean | undefined;
+	nativeMagicResType?: MagicResType | undefined;
 	currentRarityModifier?: RarityModifier | undefined;
 	detectedRarityModifier?: RarityModifier | undefined;
 };
@@ -16,6 +24,7 @@ export class StatDecompositionState {
 	readonly statValue: number;
 	readonly count: BonusCount | undefined;
 	readonly native: boolean | undefined;
+	readonly nativeMagicResType: MagicResType | undefined;
 	readonly currentRarityModifier: RarityModifier | undefined;
 	readonly detectedRarityModifier: RarityModifier | undefined;
 	#item: Item;
@@ -33,13 +42,11 @@ export class StatDecompositionState {
 
 		if (lvl !== undefined) {
 			return lvl + loweredLvl;
-		}
-
-		if (this.#item.type === ItemType.Bless) {
+		} else if (this.#item.type === ItemType.Bless) {
 			return external.getCharLvl();
+		} else {
+			return 1;
 		}
-
-		return 1;
 	}
 
 	get upgrade(): number {
@@ -57,6 +64,7 @@ export class StatDecompositionState {
 		this.statValue = statValue;
 		this.count = options?.count;
 		this.native = options?.native;
+		this.nativeMagicResType = options?.nativeMagicResType;
 		this.currentRarityModifier = options?.currentRarityModifier;
 		this.detectedRarityModifier = options?.detectedRarityModifier;
 		this.#item = item;
@@ -66,6 +74,7 @@ export class StatDecompositionState {
 			statValue: readonlyProperty,
 			count: readonlyProperty,
 			native: readonlyProperty,
+			nativeMagicResType: readonlyProperty,
 			currentRarityModifier: readonlyProperty,
 			detectedRarityModifier: readonlyProperty,
 		});
@@ -75,11 +84,16 @@ export class StatDecompositionState {
 		return this.#item.stats.countableStats.has(name);
 	}
 
+	getStatValue(name: CountableStatName): number | undefined {
+		return this.#item.stats.countableStats.get(name);
+	}
+
 	withRarityModifier(modifier: RarityModifier): StatDecompositionState {
 		return new StatDecompositionState(this.#item, this.statValue, {
 			value: this.value,
 			count: this.count,
 			native: this.native,
+			nativeMagicResType: this.nativeMagicResType,
 			currentRarityModifier: modifier,
 			detectedRarityModifier: this.detectedRarityModifier,
 		});
@@ -90,6 +104,7 @@ export class StatDecompositionState {
 			value: this.value - value,
 			count: this.count,
 			native: true,
+			nativeMagicResType: this.nativeMagicResType,
 			currentRarityModifier: this.currentRarityModifier,
 			detectedRarityModifier: this.detectedRarityModifier,
 		});
@@ -100,8 +115,20 @@ export class StatDecompositionState {
 			value: this.value - value,
 			count,
 			native: this.native,
+			nativeMagicResType: this.nativeMagicResType,
 			currentRarityModifier: this.currentRarityModifier,
 			detectedRarityModifier: this.detectedRarityModifier,
+		});
+	}
+
+	with(options?: StatDecompositionStateOptions): StatDecompositionState {
+		return new StatDecompositionState(this.#item, this.statValue, {
+			value: options?.value ?? this.value,
+			count: options?.count ?? this.count,
+			native: options?.native ?? this.native,
+			nativeMagicResType: options?.nativeMagicResType ?? this.nativeMagicResType,
+			currentRarityModifier: options?.currentRarityModifier ?? this.currentRarityModifier,
+			detectedRarityModifier: options?.detectedRarityModifier ?? this.detectedRarityModifier,
 		});
 	}
 }
