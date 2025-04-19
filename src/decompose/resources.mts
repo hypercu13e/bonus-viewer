@@ -1,5 +1,5 @@
-import { CharClass, ItemType } from '#item';
-import type { Coeffs } from './common.mts';
+import { CharClass } from '#item';
+import { type Coeffs, itemTypes } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
@@ -38,7 +38,7 @@ export const mana = counter.pipe(
 		}
 
 		return counter.native({
-			items: [ItemType.Armor],
+			items: itemTypes.armor,
 			evaluator: evaluate.polynomial([c / 3, 0]),
 		});
 	}),

@@ -10,6 +10,18 @@ const itemPowerCoeffs: Coeffs = Object.freeze({
 	[ItemType.Gloves]: 0.25,
 });
 
+export const itemTypes = Object.freeze({
+	armor: Object.freeze([ItemType.Armor]),
+	armors: Object.freeze([
+		ItemType.Armor,
+		ItemType.Shield,
+		ItemType.Helmet,
+		ItemType.Gloves,
+		ItemType.Boots,
+	]),
+	arrows: Object.freeze([ItemType.Arrows, ItemType.Quiver]),
+});
+
 export function power(itemType: ItemType): number {
 	return itemPowerCoeffs[itemType] ?? 1;
 }

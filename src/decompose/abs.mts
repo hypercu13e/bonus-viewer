@@ -1,5 +1,5 @@
 import { CharClass, ItemType } from '#item';
-import { type Coeffs, power } from './common.mts';
+import { type Coeffs, itemTypes, power } from './common.mts';
 import type { BonusCounter } from './counter.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
@@ -10,13 +10,7 @@ const nativeAbs = (coeffs: Coeffs): BonusCounter =>
 		const c = coeffs[state.charClasses] ?? 0;
 
 		return counter.native({
-			items: [
-				ItemType.Armor,
-				ItemType.Shield,
-				ItemType.Helmet,
-				ItemType.Gloves,
-				ItemType.Boots,
-			],
+			items: itemTypes.armors,
 			evaluator: evaluate.R(0.01 * p * c),
 		});
 	});

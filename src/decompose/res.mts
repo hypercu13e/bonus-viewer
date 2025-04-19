@@ -1,5 +1,5 @@
 import { CharClass, type CountableStatName, ItemType, MagicResType } from '#item';
-import { type Coeffs, isMagicWeapon } from './common.mjs';
+import { type Coeffs, isMagicWeapon, itemTypes } from './common.mjs';
 import type { BonusCounter } from './counter.mjs';
 import * as counter from './counter.mjs';
 import { EvalVariable, type Evaluator } from './evaluate.mjs';
@@ -50,13 +50,7 @@ const nativeMagicRes =
 
 		if (state.nativeMagicResType === magicResType) {
 			const nativeCounter = counter.native({
-				items: [
-					ItemType.Armor,
-					ItemType.Shield,
-					ItemType.Helmet,
-					ItemType.Gloves,
-					ItemType.Boots,
-				],
+				items: itemTypes.armors,
 				evaluator,
 			});
 
@@ -158,31 +152,27 @@ export const poisonRes = counter.pipe(
 		const c = nativePoisonResCoeffs[state.charClasses] ?? 0;
 
 		return counter.native({
-			items: [
-				ItemType.Armor,
-				ItemType.Helmet,
-				ItemType.Gloves,
-				ItemType.Boots,
-				ItemType.Shield,
-			],
+			items: itemTypes.armors,
 			evaluator: evaluate.constant(c),
 		});
 	}),
 	counter.linear({ a1: evaluate.constant(5) }),
 );
 
+const nativeResDestItemTypes: readonly ItemType[] = Object.freeze([
+	ItemType.OneHanded,
+	ItemType.HandAndAHalf,
+	ItemType.TwoHanded,
+	ItemType.Arrows,
+	ItemType.Quiver,
+]);
+
 export const resDest = counter.pipe(
 	counter.flatMap((state) => {
 		const c = isMagicWeapon(state) ? 1 : 0;
 
 		return counter.native({
-			items: [
-				ItemType.OneHanded,
-				ItemType.HandAndAHalf,
-				ItemType.TwoHanded,
-				ItemType.Arrows,
-				ItemType.Quiver,
-			],
+			items: nativeResDestItemTypes,
 			evaluator: evaluate.constant(c),
 		});
 	}),

@@ -1,5 +1,5 @@
 import { CharClass, ItemType } from '#item';
-import { type Coeffs, power } from './common.mts';
+import { type Coeffs, itemTypes, power } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
@@ -34,13 +34,7 @@ export const armor = counter.rarityDependent(
 			const c = nativeArmorCoeffs[state.charClasses] ?? 1;
 
 			return counter.native({
-				items: [
-					ItemType.Armor,
-					ItemType.Shield,
-					ItemType.Helmet,
-					ItemType.Gloves,
-					ItemType.Boots,
-				],
+				items: itemTypes.armors,
 				evaluator: evaluate.R(0.02 * p * c),
 			});
 		}),
@@ -76,7 +70,7 @@ export const armorDest = counter.pipe(
 		const a = 0.0008 * c;
 
 		return counter.native({
-			items: [ItemType.Arrows, ItemType.Quiver],
+			items: itemTypes.arrows,
 			evaluator: evaluate.polynomial([a, 130 * a, 0]),
 			// TODO: This is most likely a bug in the game engine, which currently rounds bonuses of
 			// this stat separately.

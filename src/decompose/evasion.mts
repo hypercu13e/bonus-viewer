@@ -1,5 +1,5 @@
 import { CharClass, ItemType } from '#item';
-import type { Coeffs } from './common.mts';
+import { type Coeffs, itemTypes } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
@@ -15,7 +15,7 @@ export const evade = counter.pipe(
 		const c = nativeEvadeCoeffs[state.charClasses] ?? 0;
 
 		return counter.native({
-			items: [ItemType.Armor],
+			items: itemTypes.armor,
 			evaluator: evaluate.polynomial([c, 0]),
 		});
 	}),
@@ -29,12 +29,14 @@ const nativeBlockCoeffs: Coeffs = Object.freeze({
 	[CharClass.Wp]: 1.1,
 });
 
+const nativeBlockItemTypes: readonly ItemType[] = Object.freeze([ItemType.Shield]);
+
 export const block = counter.pipe(
 	counter.flatMap((state) => {
 		const c = nativeBlockCoeffs[state.charClasses] ?? 1;
 
 		return counter.native({
-			items: [ItemType.Shield],
+			items: nativeBlockItemTypes,
 			evaluator: evaluate.polynomial([c, 0]),
 		});
 	}),

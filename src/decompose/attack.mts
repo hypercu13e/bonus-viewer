@@ -1,5 +1,5 @@
 import { CharClass, ItemType } from '#item';
-import { type Coeffs, isDotWeapon, isMagicWeapon } from './common.mjs';
+import { type Coeffs, isDotWeapon, isMagicWeapon, itemTypes } from './common.mjs';
 import type { BonusCounter } from './counter.mjs';
 import * as counter from './counter.mjs';
 import * as evaluate from './evaluate.mjs';
@@ -27,6 +27,14 @@ const dotPhysDmgCoeffs: Coeffs = Object.freeze({
 	[ItemType.Auxiliary]: 0.595,
 });
 
+const nativePhysDmgItemTypes: readonly ItemType[] = Object.freeze([
+	ItemType.OneHanded,
+	ItemType.HandAndAHalf,
+	ItemType.TwoHanded,
+	ItemType.Ranged,
+	ItemType.Auxiliary,
+]);
+
 const physDmg = (factor: number): BonusCounter =>
 	counter.flatMap((state) => {
 		let c: number;
@@ -40,13 +48,7 @@ const physDmg = (factor: number): BonusCounter =>
 		}
 
 		return counter.native({
-			items: [
-				ItemType.OneHanded,
-				ItemType.HandAndAHalf,
-				ItemType.TwoHanded,
-				ItemType.Ranged,
-				ItemType.Auxiliary,
-			],
+			items: nativePhysDmgItemTypes,
 			evaluator: evaluate.R(0.051 * c * factor),
 			roundResult: true,
 		});
@@ -57,7 +59,7 @@ export const physDmgMax = counter.rarityDependent(physDmg(1.1));
 
 export const rangedDmg = counter.rarityDependent(
 	counter.native({
-		items: [ItemType.Arrows, ItemType.Quiver],
+		items: itemTypes.arrows,
 		evaluator: evaluate.R(0.051 * 0.095),
 		roundResult: true,
 	}),
@@ -287,7 +289,7 @@ export const speed = counter.pipe(
 		const c = nativeSpeedCoeffs[state.charClasses] ?? 0;
 
 		return counter.native({
-			items: [ItemType.Armor],
+			items: itemTypes.armor,
 			evaluator: evaluate.polynomial([c, 0]),
 		});
 	}),

@@ -1,5 +1,5 @@
-import { CharClass, ItemType } from '#item';
-import { type Coeffs, power } from './common.mts';
+import { CharClass } from '#item';
+import { type Coeffs, itemTypes, power } from './common.mts';
 import * as counter from './counter.mts';
 import * as evaluate from './evaluate.mts';
 
@@ -26,7 +26,7 @@ export const hpBonus = counter.flatMap((state) => {
 	const c = nativeHpBonusCoeffs[state.charClasses] ?? 0;
 
 	return counter.native({
-		items: [ItemType.Armor],
+		items: itemTypes.armor,
 		evaluator: (ctx) => Math.max(0.1 * c * ctx.x, 1),
 		roundResult: true,
 	});
