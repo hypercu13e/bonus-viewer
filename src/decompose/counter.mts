@@ -56,7 +56,11 @@ export function native(options: NativeOptions): BonusCounter {
 				value = roundAwayFromZero(value);
 			}
 
-			return state.withNativeBonus(value);
+			if (value !== 0) {
+				return state.withNativeBonus(value);
+			} else {
+				return state;
+			}
 		} else {
 			return state;
 		}
