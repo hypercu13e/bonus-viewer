@@ -38,57 +38,6 @@ import {
 } from './decompose/resources.mts';
 import { StatDecompositionState } from './decompose/state.mts';
 
-export {
-	IntegerCount,
-	RangeCount,
-	type BonusCount,
-} from './decompose/count.mts';
-
-export type DecomposedItem = {
-	readonly rarityModifier: RarityModifier;
-	readonly results: Map<CountableStatName, DecompositionResult>;
-};
-
-export type DecomposedStat = {
-	readonly count: BonusCount;
-	readonly native: boolean;
-	readonly rarityDependent: boolean;
-};
-
-export type DecompositionResult = DecompositionSuccess | DecompositionFailure;
-
-export class DecompositionSuccess {
-	readonly success = true;
-	readonly decomposedStat: DecomposedStat;
-
-	constructor(decomposedStat: DecomposedStat) {
-		this.decomposedStat = decomposedStat;
-
-		Object.defineProperties(this, {
-			success: readonlyProperty,
-			decomposedStat: readonlyProperty,
-		});
-	}
-}
-
-export class DecompositionFailure {
-	readonly success = false;
-	readonly error: DecompositionError;
-
-	constructor(error: DecompositionError) {
-		this.error = error;
-
-		Object.defineProperties(this, {
-			success: readonlyProperty,
-			error: readonlyProperty,
-		});
-	}
-}
-
-export class DecompositionError extends Error {
-	override name = DecompositionError.name;
-}
-
 const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freeze({
 	armor,
 	armorDest,
@@ -143,6 +92,57 @@ const counters: Readonly<Record<CountableStatName, BonusCounter>> = Object.freez
 	block,
 	pierceBlock,
 } satisfies Record<CountableStatName, BonusCounter>);
+
+export {
+	IntegerCount,
+	RangeCount,
+	type BonusCount,
+} from './decompose/count.mts';
+
+export type DecomposedItem = {
+	readonly rarityModifier: RarityModifier;
+	readonly results: Map<CountableStatName, DecompositionResult>;
+};
+
+export type DecomposedStat = {
+	readonly count: BonusCount;
+	readonly native: boolean;
+	readonly rarityDependent: boolean;
+};
+
+export type DecompositionResult = DecompositionSuccess | DecompositionFailure;
+
+export class DecompositionSuccess {
+	readonly success = true;
+	readonly decomposedStat: DecomposedStat;
+
+	constructor(decomposedStat: DecomposedStat) {
+		this.decomposedStat = decomposedStat;
+
+		Object.defineProperties(this, {
+			success: readonlyProperty,
+			decomposedStat: readonlyProperty,
+		});
+	}
+}
+
+export class DecompositionFailure {
+	readonly success = false;
+	readonly error: DecompositionError;
+
+	constructor(error: DecompositionError) {
+		this.error = error;
+
+		Object.defineProperties(this, {
+			success: readonlyProperty,
+			error: readonlyProperty,
+		});
+	}
+}
+
+export class DecompositionError extends Error {
+	override name = DecompositionError.name;
+}
 
 export function decomposeItem(item: Item): DecomposedItem | undefined {
 	if (!isItemDecomposable(item)) {
