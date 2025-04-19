@@ -5,49 +5,53 @@ import * as format from '#format';
 import { parseItemData } from '#item';
 import * as log from '#log';
 
-const statFormatters = new Map<string, StatFormatter>([
-	['item_ac %val%', format.singular('armor')],
-	['bonus_acdmg %val%', format.singular('armorDest')],
-	['bonus_resacdmg %val%', format.singular('armorDestRed')],
-	['bonus_absorb %val%', format.singular('physAbs')],
-	['bonus_absorbm %val%', format.singular('magicAbs')],
-	['bonus_abdest %val%', format.singular('absDest')],
-	['item_dmg %val%', format.multipleSingleLine('physDmgMin', 'physDmgMax')],
-	['item_distance_dmg %val%', format.multipleSingleLine('physDmgMin', 'physDmgMax')],
-	['item_pdmg %val%', format.singular('rangedDmg')],
-	['bonus_fire %val%', format.singular('fireDmg')],
-	['bonus_light %val%', format.multipleSingleLine('lightDmgMin', 'lightDmgMax')],
-	['bonus_frost %val% %slow%', format.multipleMultiLine(['frostDmg'], ['frostSlow'])],
-	['bonus_poison %val% %slow%', format.multipleMultiLine(['poisonDmg'], ['poisonSlow'])],
-	['bonus_wound %val% %dmg%', format.multipleSingleLine('woundChance', 'woundDmg')],
-	['bonus_pierce %val%', format.singular('pierce')],
-	['bonus_contra %val%', format.singular('counterattack')],
-	['no_percent_bonus_sa %val%', format.singular('speed')],
-	['bonus_slow %val%', format.singular('slow')],
-	['bonus_crit %val%', format.singular('crit')],
-	['bonus_lowcrit %val%', format.singular('critRed')],
-	['bonus_critval %val%', format.singular('physCritPower')],
-	['bonus_of-critmval %val%', format.singular('magicCritPower')],
-	['bonus_lowcritallval %val%', format.singular('critPowerRed')],
-	['bonus_ds %val%', format.singular('strength')],
-	['bonus_dz %val%', format.singular('agility')],
-	['bonus_di %val%', format.singular('intelligence')],
-	['bonus_da %val%', format.singular('baseAttrs')],
-	['bonus_energybon %val%', format.singular('energy')],
-	['bonus_enfatig', format.multipleSingleLine('energyDestChance', 'energyDest')],
-	['bonus_manabon %val%', format.singular('mana')],
-	['bonus_manafatig', format.multipleSingleLine('manaDestChance', 'manaDest')],
-	['bonus_resmanaendest %val%', format.singular('resourcesDestRed')],
-	['bonus_hp %val%', format.singular('hp')],
-	['bonus_hpbon %val%', format.singular('hpBonus')],
-	['bonus_heal %val%', format.singular('hpRegen')],
-	['bonus_adest %val%', format.singular('hpRegenSelfRed')],
-	['bonus_lowheal2turns %val%', format.singular('hpRegenEnemyRed')],
-	['bonus_evade %val%', format.singular('evade')],
-	['bonus_lowevade %val%', format.singular('evadeRed')],
-	['bonus_blok %val%', format.singular('block')],
-	['bonus_pierceb %val%', format.singular('pierceBlock')],
-]);
+const statFormatters: Readonly<Record<string, StatFormatter>> = Object.freeze({
+	// Translation keys might be arbitrary strings, so to be extra safe create this object without
+	// the prototype. Sadly, TypeScript doesn't support `__proto__` in the object initializer. See
+	// https://github.com/microsoft/TypeScript/issues/38385 for more information.
+	__proto__: null as unknown as StatFormatter,
+	'item_ac %val%': format.singular('armor'),
+	'bonus_acdmg %val%': format.singular('armorDest'),
+	'bonus_resacdmg %val%': format.singular('armorDestRed'),
+	'bonus_absorb %val%': format.singular('physAbs'),
+	'bonus_absorbm %val%': format.singular('magicAbs'),
+	'bonus_abdest %val%': format.singular('absDest'),
+	'item_dmg %val%': format.multipleSingleLine('physDmgMin', 'physDmgMax'),
+	'item_distance_dmg %val%': format.multipleSingleLine('physDmgMin', 'physDmgMax'),
+	'item_pdmg %val%': format.singular('rangedDmg'),
+	'bonus_fire %val%': format.singular('fireDmg'),
+	'bonus_light %val%': format.multipleSingleLine('lightDmgMin', 'lightDmgMax'),
+	'bonus_frost %val% %slow%': format.multipleMultiLine(['frostDmg'], ['frostSlow']),
+	'bonus_poison %val% %slow%': format.multipleMultiLine(['poisonDmg'], ['poisonSlow']),
+	'bonus_wound %val% %dmg%': format.multipleSingleLine('woundChance', 'woundDmg'),
+	'bonus_pierce %val%': format.singular('pierce'),
+	'bonus_contra %val%': format.singular('counterattack'),
+	'no_percent_bonus_sa %val%': format.singular('speed'),
+	'bonus_slow %val%': format.singular('slow'),
+	'bonus_crit %val%': format.singular('crit'),
+	'bonus_lowcrit %val%': format.singular('critRed'),
+	'bonus_critval %val%': format.singular('physCritPower'),
+	'bonus_of-critmval %val%': format.singular('magicCritPower'),
+	'bonus_lowcritallval %val%': format.singular('critPowerRed'),
+	'bonus_ds %val%': format.singular('strength'),
+	'bonus_dz %val%': format.singular('agility'),
+	'bonus_di %val%': format.singular('intelligence'),
+	'bonus_da %val%': format.singular('baseAttrs'),
+	'bonus_energybon %val%': format.singular('energy'),
+	bonus_enfatig: format.multipleSingleLine('energyDestChance', 'energyDest'),
+	'bonus_manabon %val%': format.singular('mana'),
+	bonus_manafatig: format.multipleSingleLine('manaDestChance', 'manaDest'),
+	'bonus_resmanaendest %val%': format.singular('resourcesDestRed'),
+	'bonus_hp %val%': format.singular('hp'),
+	'bonus_hpbon %val%': format.singular('hpBonus'),
+	'bonus_heal %val%': format.singular('hpRegen'),
+	'bonus_adest %val%': format.singular('hpRegenSelfRed'),
+	'bonus_lowheal2turns %val%': format.singular('hpRegenEnemyRed'),
+	'bonus_evade %val%': format.singular('evade'),
+	'bonus_lowevade %val%': format.singular('evadeRed'),
+	'bonus_blok %val%': format.singular('block'),
+	'bonus_pierceb %val%': format.singular('pierceBlock'),
+} satisfies Record<string, StatFormatter>);
 const stylesheet = new CSSStyleSheet();
 let bonusesColor: string;
 // Well… unless the game client starts doing some asynchronous work during item tooltip generation,
@@ -98,7 +102,7 @@ function createAugmentedTranslationGetter(translate: TranslationGetter): Transla
 		const translation = translate(key, ...args);
 
 		if (decomposedItem !== undefined) {
-			const formatter = statFormatters.get(key);
+			const formatter = statFormatters[key];
 
 			return formatter?.(decomposedItem, translation) ?? translation;
 		} else {
