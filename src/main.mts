@@ -102,9 +102,16 @@ function createAugmentedTranslationGetter(translate: TranslationGetter): Transla
 		const translation = translate(key, ...args);
 
 		if (decomposedItem !== undefined) {
-			const formatter = statFormatters[key];
+			// The old game client appends the stat translation when translating a bonus added to an
+			// item as an upgrade. However, that bonus is already included in stat translations, so
+			// we really don't want to display it twice.
+			if (key === 'enh_bonus %val%') {
+				return format.removeBonusesFromTranslation(translation);
+			} else {
+				const formatter = statFormatters[key];
 
-			return formatter?.(decomposedItem, translation) ?? translation;
+				return formatter?.(decomposedItem, translation) ?? translation;
+			}
 		} else {
 			return translation;
 		}

@@ -19,7 +19,6 @@ export type StatFormatter = (decomposedItem: DecomposedItem, translation: string
 export function singular(statName: CountableStatName): StatFormatter {
 	return function formatSingular(decomposedItem, translation): string {
 		const result = decomposedItem.results.get(statName);
-		decomposedItem.results.delete(statName);
 
 		if (result === undefined) {
 			return translation;
@@ -39,12 +38,7 @@ export function singular(statName: CountableStatName): StatFormatter {
 export function multipleSingleLine(...statNames: CountableStatName[]): StatFormatter {
 	return function formatMultipleSingleLine(decomposedItem, translation): string {
 		const results = statNames
-			.map((statName) => {
-				const result = decomposedItem.results.get(statName);
-				decomposedItem.results.delete(statName);
-
-				return result;
-			})
+			.map((statName) => decomposedItem.results.get(statName))
 			.filter((result) => result !== undefined);
 
 		if (results.length === 0) {
@@ -87,6 +81,16 @@ export function multipleMultiLine(...statLines: CountableStatName[][]): StatForm
 
 function translationWithBonuses(translation: string, formattedBonuses: string): string {
 	return `${translation.trimEnd()}${nbsp}<span class="${bonusesClassName}">${formattedBonuses}</span>`;
+}
+
+export function removeBonusesFromTranslation(translation: string): string {
+	const index = translation.lastIndexOf(`${nbsp}<span class="${bonusesClassName}">`);
+
+	if (index >= 0) {
+		return translation.slice(0, index);
+	} else {
+		return translation;
+	}
 }
 
 function formatBonuses(decomposedStats: DecomposedStat[], rarityModifier: RarityModifier): string {
