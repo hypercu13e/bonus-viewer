@@ -1,6 +1,6 @@
 {
 	"name": "@hypercu13e/bonus-viewer",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "An add-on to Margonem MMORPG that counts and displays item bonuses",
 	"author": "hypercu13e",
 	"license": "Apache-2.0",
