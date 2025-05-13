@@ -1,9 +1,9 @@
 import { CharClass, type CountableStatName, ItemType, MagicResType } from '#item';
-import { type Coeffs, isMagicWeapon, itemTypes } from './common.mjs';
-import type { BonusCounter } from './counter.mjs';
-import * as counter from './counter.mjs';
-import { EvalVariable, type Evaluator } from './evaluate.mjs';
-import * as evaluate from './evaluate.mjs';
+import { type Coeffs, isMagicWeapon, itemTypes } from './common.mts';
+import type { BonusCounter } from './counter.mts';
+import * as counter from './counter.mts';
+import { EvalVariable, type Evaluator } from './evaluate.mts';
+import * as evaluate from './evaluate.mts';
 import type { StatDecompositionState } from './state.mts';
 
 const magicResStatNames: Readonly<Record<MagicResType, CountableStatName>> = Object.freeze({

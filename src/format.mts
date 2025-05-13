@@ -101,9 +101,9 @@ function formatBonuses(decomposedStats: DecomposedStat[], rarityModifier: Rarity
 
 function toSegments(decomposedStats: DecomposedStat[], rarityModifier: RarityModifier): Segments {
 	const segments: Segments = [];
-	// When all stats depend on item's rarity, then it should be presented only once at the end.
-	// However, there might be cases where at least one stat depends on it and another one doesn't,
-	// and then each stat must have its individual dependency displayed separately.
+	// When all stats depend on item's rarity, then it should be presented only once. However, there
+	// might be cases where at least one stat depends on it and another one doesn't, and then each
+	// stat must have its individual dependency displayed separately.
 	const allStatsDependOnRarity = decomposedStats.every(
 		(decomposedStat) => decomposedStat.rarityDependent,
 	);

@@ -31,10 +31,10 @@ export type TranslationGetter = (key: string, ...args: unknown[]) => string;
 export let newInterfaceEnabled: boolean;
 export let getCharLvl: () => number;
 
-if (document.cookie.includes('interface=ni')) {
+if (globalThis.document.cookie.includes('interface=ni')) {
 	newInterfaceEnabled = true;
 	getCharLvl = () => globalThis.Engine.hero.d.lvl;
-} else if (document.cookie.includes('interface=si')) {
+} else if (globalThis.document.cookie.includes('interface=si')) {
 	newInterfaceEnabled = false;
 	getCharLvl = () => globalThis.hero.lvl;
 } else {

@@ -1,8 +1,8 @@
 import { CharClass, ItemType } from '#item';
-import { type Coeffs, isDotWeapon, isMagicWeapon, itemTypes } from './common.mjs';
-import type { BonusCounter } from './counter.mjs';
-import * as counter from './counter.mjs';
-import * as evaluate from './evaluate.mjs';
+import { type Coeffs, isDotWeapon, isMagicWeapon, itemTypes } from './common.mts';
+import type { BonusCounter } from './counter.mts';
+import * as counter from './counter.mts';
+import * as evaluate from './evaluate.mts';
 
 const physDmgCoeffs: Coeffs = Object.freeze({
 	[ItemType.OneHanded]: 1.06,
@@ -49,7 +49,7 @@ const physDmg = (factor: number): BonusCounter =>
 
 		return counter.native({
 			items: nativePhysDmgItemTypes,
-			evaluator: evaluate.R(0.051 * c * factor),
+			evaluator: evaluate.R(factor * 0.051 * c),
 			roundResult: true,
 		});
 	});
@@ -103,9 +103,9 @@ const nativeLightDmgCoeffs: Coeffs = Object.freeze({
 	[ItemType.OneHanded]: 0.5,
 	[ItemType.HandAndAHalf]: 0.65,
 	[ItemType.TwoHanded]: 0.75,
-	[ItemType.Ranged]: 0.71,
-	[ItemType.Wand]: 1.25,
-	[ItemType.Orb]: 0.5,
+	[ItemType.Ranged]: 17 / 24,
+	[ItemType.Wand]: 55 / 48,
+	[ItemType.Orb]: 23 / 48,
 	[ItemType.Arrows]: 0.15,
 	[ItemType.Quiver]: 0.15,
 });
@@ -116,7 +116,7 @@ const lightDmg = (factor: number): BonusCounter =>
 
 		return counter.native({
 			items: magicDmgItemTypes,
-			evaluator: evaluate.R(0.051 * c * factor),
+			evaluator: evaluate.R(factor * 0.051 * c),
 			roundResult: true,
 		});
 	});

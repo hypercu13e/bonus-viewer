@@ -74,7 +74,7 @@ const rarityModifiers: readonly RarityModifier[] = Object.freeze([
 ]);
 
 export function rarityDependent(counter: BonusCounter): BonusCounter {
-	return function countRarityDependentStat(initialState): StatDecompositionState {
+	return function countRarityDependent(initialState): StatDecompositionState {
 		// If we already know the modifier, then short-circuit counting.
 		if (initialState.detectedRarityModifier !== undefined) {
 			const state = initialState.with({
